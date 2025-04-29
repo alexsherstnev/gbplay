@@ -307,18 +307,18 @@ static GB_result_t handle_mode_drawing(GB_emulator_t *gb) {
 
         int8_t rel_y = ly - (sprite->y - 16);
         if (rel_y < 0 || rel_y >= sprite_height) { continue; }
-        if (sprite->flags & (1 << 6)) { rel_y = sprite_height - 1 - rel_y; }
+        if (sprite->flags & GB_PPU_OAM_FLAG_Y_FLIP) { rel_y = sprite_height - 1 - rel_y; }
 
         uint8_t tile = sprite->tile_index & tile_mask;
         const uint16_t addr = tile * 16 + rel_y * 2;
         const uint8_t low = gb->memory.vram[addr];
         const uint8_t high = gb->memory.vram[addr + 1];
-        const uint8_t bit = (sprite->flags & (1 << 5)) ? (gb->ppu.pixel_fetcher.x - sprite_x)
-                                                       : (7 - (gb->ppu.pixel_fetcher.x - sprite_x));
+        const uint8_t bit = (sprite->flags & GB_PPU_OAM_FLAG_X_FLIP) ? (gb->ppu.pixel_fetcher.x - sprite_x)
+                                                                     : (7 - (gb->ppu.pixel_fetcher.x - sprite_x));
         const uint8_t pixel = ((high >> bit) & 1) << 1 | ((low >> bit) & 1);
         if (pixel) {
-          if (!(sprite->flags & (1 << 7)) || bg_color_index == 0) {
-            const uint8_t palette = (sprite->flags & (1 << 4)) ? obp1 : obp0;
+          if (!(sprite->flags & GB_PPU_OAM_FLAG_PRIORITY) || bg_color_index == 0) {
+            const uint8_t palette = (sprite->flags & GB_PPU_OAM_FLAG_PALLETE) ? obp1 : obp0;
             final_color = (palette >> (pixel * 2)) & 0x03;
             break;
           }

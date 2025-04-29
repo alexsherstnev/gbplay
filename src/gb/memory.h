@@ -27,24 +27,24 @@ typedef struct {
 
 typedef struct {
   uint16_t rom_bank;     // Active ROM bank number
-  uint8_t  ram_bank;     // Active RAM bank number (if supported)
-  uint8_t  mode;         // Operational mode (used by MBC1 to switch between ROM and RAM)
-  bool     ram_enabled;  // Flag to enable/disable access to the RAM
+  uint8_t ram_bank;     // Active RAM bank number (if supported)
+  uint8_t mode;         // Operational mode (used by MBC1 to switch between ROM and RAM)
+  bool ram_enabled;  // Flag to enable/disable access to the RAM
 } GB_mbc_t;
 
 typedef struct {
-  /* $0000:$0100 */ uint8_t  *boot_rom;
-  /* $0000:$3FFF */ uint8_t  *rom_0;
-  /* $4000:$7FFF */ uint8_t  *rom_x[512];
-  /* $8000:$9FFF */ uint8_t  *vram;
-  /* $A000:$BFFF */ uint8_t  *external_ram[16];
-  /* $C000:$CFFF */ uint8_t  *wram;
-  /* $E000:$FDFF */ uint8_t  *echo_ram;
-  /* $FE00:$FE9F */ uint8_t  *oam;
-  /* $FF00:$FF7F */ uint8_t  *io;
-  /* $FF80:$FFFE */ uint8_t  *hram;
-  /* $FFFF:$FFFF */ uint8_t   ie;
-                    GB_mbc_t  mbc;
+  /* $0000:$0100 */ uint8_t *boot_rom;
+  /* $0000:$3FFF */ uint8_t *rom_0;
+  /* $4000:$7FFF */ uint8_t *rom_x[512];
+  /* $8000:$9FFF */ uint8_t *vram;
+  /* $A000:$BFFF */ uint8_t *external_ram[16];
+  /* $C000:$CFFF */ uint8_t *wram;
+  /* $E000:$FDFF */ uint8_t *echo_ram;
+  /* $FE00:$FE9F */ uint8_t *oam;
+  /* $FF00:$FF7F */ uint8_t *io;
+  /* $FF80:$FFFE */ uint8_t *hram;
+  /* $FFFF:$FFFF */ uint8_t ie;
+                    GB_mbc_t mbc;
 } GB_memory_t;
 
 GB_result_t GB_memory_init(GB_emulator_t *gb);

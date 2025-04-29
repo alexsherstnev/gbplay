@@ -34,6 +34,10 @@
 #define GB_PPU_STAT_HBLANK_INT_SELECT (1 << 3)  // Mode HBLANK int select (Read/Write): If set, selects the Mode HBLANK condition for the STAT interrupt
 #define GB_PPU_STAT_LYC_EQ_LY         (1 << 2)  // LYC == LY (Read-only): Set when LY contains the same value as LYC; it is constantly updated
 #define GB_PPU_STAT_MODE              ((1 << 1) | (1 << 0))  // PPU mode (Read-only): Indicates the PPU’s current status
+#define GB_PPU_OAM_FLAG_PRIORITY      (1 << 7)  // Priority: 0 = No, 1 = BG and Window color indices 1–3 are drawn over this OBJ
+#define GB_PPU_OAM_FLAG_Y_FLIP        (1 << 6)  // Y flip: 0 = Normal, 1 = Entire OBJ is vertically mirrored
+#define GB_PPU_OAM_FLAG_X_FLIP        (1 << 5)  // X flip: 0 = Normal, 1 = Entire OBJ is horizontally mirrored
+#define GB_PPU_OAM_FLAG_PALLETE       (1 << 4)  // DMG palette: 0 = OBP0, 1 = OBP1
 
 #define GB_INTERRUPT_VBLANK           (0x01)    // VBlank
 #define GB_INTERRUPT_STAT             (0x02)    // LCD STAT
