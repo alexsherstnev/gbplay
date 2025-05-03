@@ -8,61 +8,67 @@ GB_result_t GB_emulator_init(GB_emulator_t *gb) {
   GB_TRY(GB_ppu_init(gb));
   GB_TRY(GB_timer_init(gb));
 
-
-  // Test PPU
-  gb->memory.io[GB_MEMORY_IO_OFFSET(GB_HARDWARE_REGISTER_LCDC)] |= GB_PPU_LCDC_ENABLE;
-  gb->memory.io[GB_MEMORY_IO_OFFSET(GB_HARDWARE_REGISTER_LCDC)] |= GB_PPU_LCDC_BG_WINDOW_TILES;
-  gb->memory.io[GB_MEMORY_IO_OFFSET(GB_HARDWARE_REGISTER_LCDC)] |= GB_PPU_LCDC_BG_WINDOW_ENABLE;
-
-  gb->memory.io[GB_MEMORY_IO_OFFSET(GB_HARDWARE_REGISTER_BGP)] = 0xE4;
-  gb->memory.io[GB_MEMORY_IO_OFFSET(GB_HARDWARE_REGISTER_OBP0)] = 0x1B;
-
-  for (int i = 0; i < 16; i++) { gb->memory.vram[i] = 0xFF;      } // Tile 0 black
-  for (int i = 0; i < 16; i++) { gb->memory.vram[16 + i] = 0x00; } // Tile 1 white
-  for (int i = 0; i < 16; i++) { gb->memory.vram[32 + i] = i < 8 ? 0x00 : 0xFF; } // Tile 2 lines
-
-  const uint8_t cross_tile[16] = {
-    0x81, 0x00, // 10000001
-    0x42, 0x00, // 01000010
-    0x24, 0x00, // 00100100
-    0x18, 0x00, // 00011000
-    0x18, 0x00, // 00011000
-    0x24, 0x00, // 00100100
-    0x42, 0x00, // 01000010
-    0x81, 0x00  // 10000001
-  };
-  memcpy(gb->memory.vram + 48, cross_tile, 16);  // Tile 3 cross
-
-  for (int y = 0; y < 32; y++) {
-    for (int x = 0; x < 32; x++) {
-      gb->memory.vram[0x1800 + y * 32 + x] = ((x + y) % 2);
-    }
-  }
-
-  gb->memory.io[GB_MEMORY_IO_OFFSET(GB_HARDWARE_REGISTER_WX)] = 7 + 20;
-  gb->memory.io[GB_MEMORY_IO_OFFSET(GB_HARDWARE_REGISTER_WY)] = 48;
-  gb->memory.io[GB_MEMORY_IO_OFFSET(GB_HARDWARE_REGISTER_LCDC)] |= (1 << 5);
-  gb->memory.io[GB_MEMORY_IO_OFFSET(GB_HARDWARE_REGISTER_LCDC)] |= (1 << 6);
-
-  for (int y = 0; y < 32; y++) {
-    for (int x = 0; x < 32; x++) {
-      gb->memory.vram[0x1C00 + y * 32 + x] = 2;
-    }
-  }
-
-  gb->memory.io[GB_MEMORY_IO_OFFSET(GB_HARDWARE_REGISTER_LCDC)] |= (1 << 1);
-
-  GB_oam_sprite_t *sprite = (GB_oam_sprite_t *)&gb->memory.oam[0];
-  sprite->x = 84;
-  sprite->y = 84;
-  sprite->tile_index = 3;
-  sprite->flags = 0;
-
-  sprite = (GB_oam_sprite_t *)&gb->memory.oam[4];
-  sprite->x = 24;
-  sprite->y = 20;
-  sprite->tile_index = 3;
-  sprite->flags = 0;
+//  // Test CPU
+//  gb->memory.rom_0 = malloc(0x2000);
+//  gb->memory.rom_0[0] = 0x00;
+//  gb->memory.rom_0[1] = 0x01;
+//  gb->memory.rom_0[2] = 0x00;
+//  gb->memory.io[GB_MEMORY_IO_OFFSET(GB_HARDWARE_REGISTER_BOOT)] = 0x01;
+//
+//  // Test PPU
+//  gb->memory.io[GB_MEMORY_IO_OFFSET(GB_HARDWARE_REGISTER_LCDC)] |= GB_PPU_LCDC_ENABLE;
+//  gb->memory.io[GB_MEMORY_IO_OFFSET(GB_HARDWARE_REGISTER_LCDC)] |= GB_PPU_LCDC_BG_WINDOW_TILES;
+//  gb->memory.io[GB_MEMORY_IO_OFFSET(GB_HARDWARE_REGISTER_LCDC)] |= GB_PPU_LCDC_BG_WINDOW_ENABLE;
+//
+//  gb->memory.io[GB_MEMORY_IO_OFFSET(GB_HARDWARE_REGISTER_BGP)] = 0xE4;
+//  gb->memory.io[GB_MEMORY_IO_OFFSET(GB_HARDWARE_REGISTER_OBP0)] = 0x1B;
+//
+//  for (int i = 0; i < 16; i++) { gb->memory.vram[i] = 0xFF;      } // Tile 0 black
+//  for (int i = 0; i < 16; i++) { gb->memory.vram[16 + i] = 0x00; } // Tile 1 white
+//  for (int i = 0; i < 16; i++) { gb->memory.vram[32 + i] = i < 8 ? 0x00 : 0xFF; } // Tile 2 lines
+//
+//  const uint8_t cross_tile[16] = {
+//    0x81, 0x00, // 10000001
+//    0x42, 0x00, // 01000010
+//    0x24, 0x00, // 00100100
+//    0x18, 0x00, // 00011000
+//    0x18, 0x00, // 00011000
+//    0x24, 0x00, // 00100100
+//    0x42, 0x00, // 01000010
+//    0x81, 0x00  // 10000001
+//  };
+//  memcpy(gb->memory.vram + 48, cross_tile, 16);  // Tile 3 cross
+//
+//  for (int y = 0; y < 32; y++) {
+//    for (int x = 0; x < 32; x++) {
+//      gb->memory.vram[0x1800 + y * 32 + x] = ((x + y) % 2);
+//    }
+//  }
+//
+//  gb->memory.io[GB_MEMORY_IO_OFFSET(GB_HARDWARE_REGISTER_WX)] = 7 + 20;
+//  gb->memory.io[GB_MEMORY_IO_OFFSET(GB_HARDWARE_REGISTER_WY)] = 48;
+//  gb->memory.io[GB_MEMORY_IO_OFFSET(GB_HARDWARE_REGISTER_LCDC)] |= (1 << 5);
+//  gb->memory.io[GB_MEMORY_IO_OFFSET(GB_HARDWARE_REGISTER_LCDC)] |= (1 << 6);
+//
+//  for (int y = 0; y < 32; y++) {
+//    for (int x = 0; x < 32; x++) {
+//      gb->memory.vram[0x1C00 + y * 32 + x] = 2;
+//    }
+//  }
+//
+//  gb->memory.io[GB_MEMORY_IO_OFFSET(GB_HARDWARE_REGISTER_LCDC)] |= (1 << 1);
+//
+//  GB_oam_sprite_t *sprite = (GB_oam_sprite_t *)&gb->memory.oam[0];
+//  sprite->x = 84;
+//  sprite->y = 84;
+//  sprite->tile_index = 3;
+//  sprite->flags = 0;
+//
+//  sprite = (GB_oam_sprite_t *)&gb->memory.oam[4];
+//  sprite->x = 24;
+//  sprite->y = 20;
+//  sprite->tile_index = 3;
+//  sprite->flags = 0;
 
   return GB_SUCCESS;
 }

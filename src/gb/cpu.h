@@ -49,13 +49,19 @@ typedef struct {
     };
   };
   uint16_t sp, pc;
-  uint8_t ime;
+  uint8_t ie;
 } GB_register_file_t;
 
 #pragma pack(pop)
 
 typedef struct {
   GB_register_file_t reg;
+  uint8_t opcode;
+  bool prefixed;
+  uint8_t cycles_remaining;
+  uint8_t ie_pending_delay;
+  bool halted;
+  bool stopped;
 } GB_cpu_t;
 
 GB_result_t GB_cpu_init(GB_emulator_t *gb);

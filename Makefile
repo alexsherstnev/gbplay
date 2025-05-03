@@ -11,7 +11,7 @@ SRC_DIR = src
 CC = gcc
 RM = rm
 MD = mkdir
-CFLAGS = -Wall -Wextra -O0 -g -I$(SRC_DIR)
+CFLAGS = -Wall -Wextra -MMD -MP -O0 -g -I$(SRC_DIR)
 LDFLAGS = -lm -ldl
 
 # Files
