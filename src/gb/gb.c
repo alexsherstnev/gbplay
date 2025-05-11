@@ -12,7 +12,8 @@ GB_result_t GB_emulator_init(GB_emulator_t *gb) {
 //  gb->memory.rom_0 = malloc(0x2000);
 //  gb->memory.rom_0[0] = 0x00;
 //  gb->memory.rom_0[1] = 0x01;
-//  gb->memory.rom_0[2] = 0x00;
+//  gb->memory.rom_0[2] = 0x0B;
+//  gb->memory.rom_0[3] = 0x0A;
 //  gb->memory.io[GB_MEMORY_IO_OFFSET(GB_HARDWARE_REGISTER_BOOT)] = 0x01;
 //
 //  // Test PPU
@@ -174,12 +175,12 @@ GB_result_t GB_emulator_load_rom(GB_emulator_t *gb, const char *path) {
   }
 
   for (size_t i = 0; i < ram_bank_count; i++) {
-    gb->memory.external_ram[i] = malloc(0x2000); // 8KB на банк
+    gb->memory.external_ram[i] = malloc(0x2000);
     if (!gb->memory.external_ram[i]) {
       for (size_t j = 0; j < i; j++) free(gb->memory.external_ram[j]);
       return GB_ERROR_OUT_OF_MEMORY;
     }
-    memset(gb->memory.external_ram[i], 0, 0x2000); // Инициализируем нулями
+    memset(gb->memory.external_ram[i], 0, 0x2000);
   }
 
   // Init MBC
@@ -190,21 +191,22 @@ GB_result_t GB_emulator_load_rom(GB_emulator_t *gb, const char *path) {
 
   free(rom_data);
 
-//  gb->cpu.reg.a = 0x01;
-//  gb->cpu.reg.carry = 1;
-//  gb->cpu.reg.half_carry = 1;
-//  gb->cpu.reg.subtract = 0;
-//  gb->cpu.reg.zero = 1;
-//  gb->cpu.reg.b = 0x00;
-//  gb->cpu.reg.c = 0x13;
-//  gb->cpu.reg.d = 0x00;
-//  gb->cpu.reg.e = 0xD8;
-//  gb->cpu.reg.h = 0x01;
-//  gb->cpu.reg.l = 0x4D;
-//  gb->cpu.reg.sp = 0xFFFE;
-//  gb->cpu.reg.pc = 0x0100;
-//  gb->memory.io[0x50] = 0x01;
-//  gb->memory.io[0x40] = 0x91;
+  gb->cpu.reg.a = 0x01;
+  gb->cpu.reg.carry = 1;
+  gb->cpu.reg.half_carry = 1;
+  gb->cpu.reg.subtract = 0;
+  gb->cpu.reg.zero = 1;
+  gb->cpu.reg.b = 0x00;
+  gb->cpu.reg.c = 0x13;
+  gb->cpu.reg.d = 0x00;
+  gb->cpu.reg.e = 0xD8;
+  gb->cpu.reg.h = 0x01;
+  gb->cpu.reg.l = 0x4D;
+  gb->cpu.reg.sp = 0xFFFE;
+  gb->cpu.reg.pc = 0x0100;
+  gb->memory.io[0x50] = 0x01;
+  gb->memory.io[0x40] = 0x91;
+  gb->memory.io[0x47] = 0xE4;
 
   return GB_SUCCESS;
 }

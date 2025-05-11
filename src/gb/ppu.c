@@ -98,6 +98,7 @@ static GB_result_t handle_mode_vblank(GB_emulator_t *gb) {
       // Reset OAM scanline buffer
       gb->ppu.oam_scanline.active_sprite_count = 0;
       gb->ppu.oam_scanline.visible_sprite_count = 0;
+      gb->ppu.pixel_fetcher.window_line = 0;
       set_ppu_mode(gb, GB_PPU_MODE_OAM);
     }
   } else {
@@ -110,8 +111,8 @@ static GB_result_t handle_mode_vblank(GB_emulator_t *gb) {
 static GB_result_t handle_mode_oam(GB_emulator_t *gb) {
   const uint8_t lcdc = gb->memory.io[GB_MEMORY_IO_OFFSET(GB_HARDWARE_REGISTER_LCDC)]; 
   if (lcdc & GB_PPU_LCDC_OBJ_ENABLE) {
+    const uint8_t ly = gb->memory.io[GB_MEMORY_IO_OFFSET(GB_HARDWARE_REGISTER_LY)];
     const uint8_t sprite_height = 8 << ((lcdc & GB_PPU_LCDC_OBJ_SIZE) != 0);
-    const uint8_t ly            = gb->memory.io[GB_MEMORY_IO_OFFSET(GB_HARDWARE_REGISTER_LY)];
     if (gb->ppu.cycles < GB_MAX_OAM_SPRITES) {
       // Step 1 - trying to find all visible sprites on current processing line
       GB_oam_sprite_t *sprites = (GB_oam_sprite_t *)(gb->memory.oam);
@@ -153,7 +154,6 @@ static GB_result_t handle_mode_oam(GB_emulator_t *gb) {
     gb->ppu.cycles = 0;
 
     // Reset fetcher
-    const uint8_t ly = gb->memory.io[GB_MEMORY_IO_OFFSET(GB_HARDWARE_REGISTER_LY)];
     gb->ppu.pixel_fetcher.step = GB_PPU_PIXEL_FETCHER_STEP_TILE;
     gb->ppu.pixel_fetcher.next_step_cycle = 0;
     gb->ppu.pixel_fetcher.fetch_x = 0;
@@ -166,7 +166,6 @@ static GB_result_t handle_mode_oam(GB_emulator_t *gb) {
     gb->ppu.pixel_fetcher.tile_high = 0;
     gb->ppu.pixel_fetcher.wy = gb->memory.io[GB_MEMORY_IO_OFFSET(GB_HARDWARE_REGISTER_WY)];
     gb->ppu.pixel_fetcher.wx = gb->memory.io[GB_MEMORY_IO_OFFSET(GB_HARDWARE_REGISTER_WX)];
-    gb->ppu.pixel_fetcher.window_line = ly > gb->ppu.pixel_fetcher.wy ? (gb->ppu.pixel_fetcher.window_line + 1) : 0;
     gb->ppu.pixel_fetcher.window_entered = false;
 
     // Reset BG FIFO
@@ -195,6 +194,7 @@ static GB_result_t handle_mode_drawing(GB_emulator_t *gb) {
       gb->ppu.pixel_fetcher.fetch_x = 0;
       gb->ppu.pixel_fetcher.window_entered = true;
       gb->ppu.bg_fifo.count = 0;
+      if (ly > gb->ppu.pixel_fetcher.wy) { gb->ppu.pixel_fetcher.window_line++; }
     }
   } else {
     gb->ppu.pixel_fetcher.window_entered = false;

@@ -97,36 +97,6 @@
 #define GB_MEMORY_WRAM_OFFSET(addr)   ((uint16_t)((addr) - 0xC000))
 #define GB_MEMORY_ECHO_OFFSET(addr)   ((uint16_t)((addr) - 0xE000))
 
-/*
-#define GB_INSTR_DEFINE(name) \
-  GB_result_t GB_instr_##name(GB_emulator_t *gb)
-#define GB_INSTR_BEGIN(name) \
-  GB_result_t GB_instr_##name(GB_emulator_t *gb) { \
-   switch (gb->cpu.active_instr_context.phase) {
-#define GB_INSTR_PHASE_BEGIN(n) \
-  case n: {
-#define GB_INSTR_PHASE_END \
-    break; \
-  }
-#define GB_INSTR_PHASE_NEXT(n, cycles) \
-  gb->cpu.active_instr_context.phase = n; \
-  gb->cpu.cycles_remaining = cycles; \
-  return GB_SUCCESS;
-#define GB_INSTR_PHASE_FETCH \
-  GB_INSTR_SET(fetch); \
-  gb->cpu.cycles_remaining = 3; \
-  gb->cpu.active_instr_context.check_interrupts = true;
-#define GB_INSTR_END \
-    } \
-    return GB_SUCCESS; \
-  }
-#define GB_INSTR_SET(fn) \
-  gb->cpu.active_instr = GB_instr_##fn; \
-  gb->cpu.active_instr_context.phase = 0;
-#define GB_INSTR_TABLE(opcode, name) \
-  [opcode] = GB_instr_##name
-*/
-
 typedef enum {
   GB_SUCCESS = 0,
 
