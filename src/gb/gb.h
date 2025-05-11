@@ -9,9 +9,9 @@
 
 struct GB_emulator {
   GB_memory_t memory;
-  GB_cpu_t    cpu;
-  GB_ppu_t    ppu;
-  GB_timer_t  timer;
+  GB_cpu_t cpu;
+  GB_ppu_t ppu;
+  GB_timer_t timer;
 };
 
 GB_result_t GB_emulator_init(GB_emulator_t *gb);

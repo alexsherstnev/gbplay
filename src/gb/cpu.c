@@ -341,227 +341,227 @@ static void sub_r8_r8_c(GB_emulator_t *gb, uint8_t *r8_l, uint8_t r8_r, uint8_t 
 }
 
 INSTR_BEGIN(fetch)
-  INSTR_TICK(0, { gb->cpu.addr = gb->cpu.reg.pc;                      }); // T1
-  INSTR_TICK(1, { gb->cpu.reg.pc++;                                   }); // T2
-  INSTR_TICK(2, { GB_TRY(memory_read(gb));                            }); // T3
+  INSTR_TICK(0, { gb->cpu.addr = gb->cpu.reg.pc;                                             }); // T1
+  INSTR_TICK(1, { gb->cpu.reg.pc++;                                                          }); // T2
+  INSTR_TICK(2, { GB_TRY(memory_read(gb));                                                   }); // T3
   INSTR_TICK(3, { gb->cpu.phase = 0;
                   gb->cpu.instr = main_instr_set[gb->cpu.read_value];
-                  return gb->cpu.instr(gb);                           }); // T4
+                  return gb->cpu.instr(gb);                                                  }); // T4
 INSTR_END
 
 INSTR_BEGIN(handle_interrupt)
-  INSTR_TICK(0,  {                                                                }); // T14
-  INSTR_TICK(1,  {                                                                }); // T15
-  INSTR_TICK(2,  {                                                                }); // T16
-  INSTR_TICK(3,  {                                                                }); // T17
-  INSTR_TICK(4,  {                                                                }); // T18
-  INSTR_TICK(5,  { gb->cpu.reg.ime = false;                                       }); // T1
-  INSTR_TICK(6,  { gb->cpu.reg.sp--;                                              }); // T2
-  INSTR_TICK(7,  { gb->cpu.addr = gb->cpu.reg.sp;                                 }); // T3
-  INSTR_TICK(8,  { gb->cpu.write_value = (uint8_t)((gb->cpu.reg.pc >> 8) & 0xFF); }); // T4
-  INSTR_TICK(9,  { GB_TRY(memory_write(gb));                                      }); // T5
-  INSTR_TICK(10, { gb->cpu.reg.sp--;                                              }); // T6
-  INSTR_TICK(11, { gb->cpu.addr = gb->cpu.reg.sp;                                 }); // T7
-  INSTR_TICK(12, { gb->cpu.write_value = (uint8_t)(gb->cpu.reg.pc & 0xFF);        }); // T8
-  INSTR_TICK(13, { GB_TRY(memory_write(gb));                                      }); // T9
-  INSTR_TICK(14, { gb->cpu.addr = GB_HARDWARE_REGISTER_IF;                        }); // T10
-  INSTR_TICK(15, { GB_TRY(memory_read(gb));                                       }); // T11
+  INSTR_TICK(0,  {                                                                           }); // T1
+  INSTR_TICK(1,  {                                                                           }); // T2
+  INSTR_TICK(2,  {                                                                           }); // T3
+  INSTR_TICK(3,  {                                                                           }); // T4
+  INSTR_TICK(4,  {                                                                           }); // T5
+  INSTR_TICK(5,  { gb->cpu.reg.ime = false;                                                  }); // T6
+  INSTR_TICK(6,  { gb->cpu.reg.sp--;                                                         }); // T7
+  INSTR_TICK(7,  { gb->cpu.addr = gb->cpu.reg.sp;                                            }); // T8
+  INSTR_TICK(8,  { gb->cpu.write_value = (uint8_t)((gb->cpu.reg.pc >> 8) & 0xFF);            }); // T9
+  INSTR_TICK(9,  { GB_TRY(memory_write(gb));                                                 }); // T10
+  INSTR_TICK(10, { gb->cpu.reg.sp--;                                                         }); // T11
+  INSTR_TICK(11, { gb->cpu.addr = gb->cpu.reg.sp;                                            }); // T12
+  INSTR_TICK(12, { gb->cpu.write_value = (uint8_t)(gb->cpu.reg.pc & 0xFF);                   }); // T13
+  INSTR_TICK(13, { GB_TRY(memory_write(gb));                                                 }); // T14
+  INSTR_TICK(14, { gb->cpu.addr = GB_HARDWARE_REGISTER_IF;                                   }); // T15
+  INSTR_TICK(15, { GB_TRY(memory_read(gb));                                                  }); // T16
   INSTR_TICK(16, { const uint8_t iflag = gb->cpu.read_value;
                    gb->cpu.read_value = find_triggered_interrupt(gb);
                    gb->cpu.addr = GB_HARDWARE_REGISTER_IF;
-                   gb->cpu.write_value = iflag & ~(1 << gb->cpu.read_value);      }); // T12
-  INSTR_TICK(17, { GB_TRY(memory_write(gb));                                      }); // T13
-  INSTR_TICK(18, { gb->cpu.reg.pc = 0x0040 + (gb->cpu.read_value * 8);            }); // T19
-  INSTR_TICK(19, { gb->cpu.phase = 0; gb->cpu.instr = fetch; return GB_SUCCESS;   }); // T20
+                   gb->cpu.write_value = iflag & ~(1 << gb->cpu.read_value);                 }); // T17
+  INSTR_TICK(17, { GB_TRY(memory_write(gb));                                                 }); // T18
+  INSTR_TICK(18, { gb->cpu.reg.pc = 0x0040 + (gb->cpu.read_value * 8);                       }); // T19
+  INSTR_TICK(19, { gb->cpu.phase = 0; gb->cpu.instr = fetch; return GB_SUCCESS;              }); // T20
 INSTR_END
 
 INSTR_BEGIN(nop)
-  INSTR_TICK(0, { return check_interrupts(gb); }); // T4
+  INSTR_TICK(0, { return check_interrupts(gb);                                               }); // T4
 INSTR_END
 
 INSTR_BEGIN_TWO_PARAMS(ld_r8_r8, uint8_t *, r8_l, uint8_t, r8_r)
-  INSTR_TICK(0, { *r8_l = r8_r; return check_interrupts(gb); }); // T4
+  INSTR_TICK(0, { *r8_l = r8_r; return check_interrupts(gb);                                 }); // T4
 INSTR_END
 
 INSTR_BEGIN_TWO_PARAMS(ld_addr_r8, uint16_t, addr, uint8_t, r8)
-  INSTR_TICK(0, {                              }); // T7
-  INSTR_TICK(1, { gb->cpu.addr = addr;         }); // T4
-  INSTR_TICK(2, { gb->cpu.write_value = r8;    }); // T5
-  INSTR_TICK(3, { GB_TRY(memory_write(gb));    }); // T6
-  INSTR_TICK(4, { return check_interrupts(gb); }); // T8
+  INSTR_TICK(0, {                                                                            }); // T4
+  INSTR_TICK(1, { gb->cpu.addr = addr;                                                       }); // T5
+  INSTR_TICK(2, { gb->cpu.write_value = r8;                                                  }); // T6
+  INSTR_TICK(3, { GB_TRY(memory_write(gb));                                                  }); // T7
+  INSTR_TICK(4, { return check_interrupts(gb);                                               }); // T8
 INSTR_END
 
 INSTR_BEGIN(ld_addr_hli_a)
-  INSTR_TICK(0, { gb->cpu.addr = gb->cpu.reg.hl;       }); // T4
-  INSTR_TICK(1, { gb->cpu.reg.hl++;                    }); // T5
-  INSTR_TICK(2, { gb->cpu.write_value = gb->cpu.reg.a; }); // T6
-  INSTR_TICK(3, { GB_TRY(memory_write(gb));            }); // T7
-  INSTR_TICK(4, { return check_interrupts(gb);         }); // T8
+  INSTR_TICK(0, { gb->cpu.addr = gb->cpu.reg.hl;                                             }); // T4
+  INSTR_TICK(1, { gb->cpu.reg.hl++;                                                          }); // T5
+  INSTR_TICK(2, { gb->cpu.write_value = gb->cpu.reg.a;                                       }); // T6
+  INSTR_TICK(3, { GB_TRY(memory_write(gb));                                                  }); // T7
+  INSTR_TICK(4, { return check_interrupts(gb);                                               }); // T8
 INSTR_END
 
 INSTR_BEGIN(ld_addr_hld_a)
-  INSTR_TICK(0, { gb->cpu.addr = gb->cpu.reg.hl;       }); // T4
-  INSTR_TICK(1, { gb->cpu.reg.hl--;                    }); // T5
-  INSTR_TICK(2, { gb->cpu.write_value = gb->cpu.reg.a; }); // T6
-  INSTR_TICK(3, { GB_TRY(memory_write(gb));            }); // T7
-  INSTR_TICK(4, { return check_interrupts(gb);         }); // T8
+  INSTR_TICK(0, { gb->cpu.addr = gb->cpu.reg.hl;                                             }); // T4
+  INSTR_TICK(1, { gb->cpu.reg.hl--;                                                          }); // T5
+  INSTR_TICK(2, { gb->cpu.write_value = gb->cpu.reg.a;                                       }); // T6
+  INSTR_TICK(3, { GB_TRY(memory_write(gb));                                                  }); // T7
+  INSTR_TICK(4, { return check_interrupts(gb);                                               }); // T8
 INSTR_END
 
 INSTR_BEGIN_TWO_PARAMS(ld_r8_addr, uint8_t *, r8, uint16_t, addr)
-  INSTR_TICK(0, {                              }); // T7
-  INSTR_TICK(1, { gb->cpu.addr = addr;         }); // T4
-  INSTR_TICK(2, { GB_TRY(memory_read(gb));     }); // T5
-  INSTR_TICK(3, { *r8 = gb->cpu.read_value;    }); // T6
-  INSTR_TICK(4, { return check_interrupts(gb); }); // T8
+  INSTR_TICK(0, {                                                                            }); // T7
+  INSTR_TICK(1, { gb->cpu.addr = addr;                                                       }); // T4
+  INSTR_TICK(2, { GB_TRY(memory_read(gb));                                                   }); // T5
+  INSTR_TICK(3, { *r8 = gb->cpu.read_value;                                                  }); // T6
+  INSTR_TICK(4, { return check_interrupts(gb);                                               }); // T8
 INSTR_END
 
 INSTR_BEGIN(ld_a_addr_hli)
-  INSTR_TICK(0, { gb->cpu.addr = gb->cpu.reg.hl;      }); // T4
-  INSTR_TICK(1, { gb->cpu.reg.hl++;                   }); // T5
-  INSTR_TICK(2, { GB_TRY(memory_read(gb));            }); // T6
-  INSTR_TICK(3, { gb->cpu.reg.a = gb->cpu.read_value; }); // T7
-  INSTR_TICK(4, { return check_interrupts(gb);        }); // T8
+  INSTR_TICK(0, { gb->cpu.addr = gb->cpu.reg.hl;                                             }); // T4
+  INSTR_TICK(1, { gb->cpu.reg.hl++;                                                          }); // T5
+  INSTR_TICK(2, { GB_TRY(memory_read(gb));                                                   }); // T6
+  INSTR_TICK(3, { gb->cpu.reg.a = gb->cpu.read_value;                                        }); // T7
+  INSTR_TICK(4, { return check_interrupts(gb);                                               }); // T8
 INSTR_END
 
 INSTR_BEGIN(ld_a_addr_hld)
-  INSTR_TICK(0, { gb->cpu.addr = gb->cpu.reg.hl;      }); // T4
-  INSTR_TICK(1, { gb->cpu.reg.hl--;                   }); // T5
-  INSTR_TICK(2, { GB_TRY(memory_read(gb));            }); // T6
-  INSTR_TICK(3, { gb->cpu.reg.a = gb->cpu.read_value; }); // T7
-  INSTR_TICK(4, { return check_interrupts(gb);        }); // T8
+  INSTR_TICK(0, { gb->cpu.addr = gb->cpu.reg.hl;                                             }); // T4
+  INSTR_TICK(1, { gb->cpu.reg.hl--;                                                          }); // T5
+  INSTR_TICK(2, { GB_TRY(memory_read(gb));                                                   }); // T6
+  INSTR_TICK(3, { gb->cpu.reg.a = gb->cpu.read_value;                                        }); // T7
+  INSTR_TICK(4, { return check_interrupts(gb);                                               }); // T8
 INSTR_END
 
 INSTR_BEGIN_ONE_PARAM(ld_r8_n8, uint8_t *, r8)
-  INSTR_TICK(0, { gb->cpu.addr = gb->cpu.reg.pc; }); // T4
-  INSTR_TICK(1, { gb->cpu.reg.pc++;              }); // T5
-  INSTR_TICK(2, { GB_TRY(memory_read(gb));       }); // T6
-  INSTR_TICK(3, { *r8 = gb->cpu.read_value;      }); // T7
-  INSTR_TICK(4, { return check_interrupts(gb);   }); // T8
+  INSTR_TICK(0, { gb->cpu.addr = gb->cpu.reg.pc;                                             }); // T4
+  INSTR_TICK(1, { gb->cpu.reg.pc++;                                                          }); // T5
+  INSTR_TICK(2, { GB_TRY(memory_read(gb));                                                   }); // T6
+  INSTR_TICK(3, { *r8 = gb->cpu.read_value;                                                  }); // T7
+  INSTR_TICK(4, { return check_interrupts(gb);                                               }); // T8
 INSTR_END
 
 INSTR_BEGIN_ONE_PARAM(ld_addr_r16_n8, uint16_t, addr)
-  INSTR_TICK(0, {                                           }); // T10
-  INSTR_TICK(1, {                                           }); // T11
-  INSTR_TICK(2, { gb->cpu.addr = gb->cpu.reg.pc;            }); // T4
-  INSTR_TICK(3, { gb->cpu.reg.pc++;                         }); // T5
-  INSTR_TICK(4, { GB_TRY(memory_read(gb));                  }); // T6
-  INSTR_TICK(5, { gb->cpu.write_value = gb->cpu.read_value; }); // T7
-  INSTR_TICK(6, { gb->cpu.addr = addr;                      }); // T8
-  INSTR_TICK(7, { GB_TRY(memory_write(gb));                 }); // T9
-  INSTR_TICK(8, { return check_interrupts(gb);              }); // T12
+  INSTR_TICK(0, {                                                                            }); // T4
+  INSTR_TICK(1, {                                                                            }); // T5
+  INSTR_TICK(2, { gb->cpu.addr = gb->cpu.reg.pc;                                             }); // T6
+  INSTR_TICK(3, { gb->cpu.reg.pc++;                                                          }); // T7
+  INSTR_TICK(4, { GB_TRY(memory_read(gb));                                                   }); // T8
+  INSTR_TICK(5, { gb->cpu.write_value = gb->cpu.read_value;                                  }); // T9
+  INSTR_TICK(6, { gb->cpu.addr = addr;                                                       }); // T10
+  INSTR_TICK(7, { GB_TRY(memory_write(gb));                                                  }); // T11
+  INSTR_TICK(8, { return check_interrupts(gb);                                               }); // T12
 INSTR_END
 
 INSTR_BEGIN_ONE_PARAM(ld_addr_a16_r8, uint8_t, r8)
-  INSTR_TICK(0,  {                                                                 }); // T14
-  INSTR_TICK(1,  {                                                                 }); // T15
-  INSTR_TICK(2,  { gb->cpu.addr = gb->cpu.reg.pc;                                  }); // T4
-  INSTR_TICK(3,  { gb->cpu.reg.pc++;                                               }); // T5
-  INSTR_TICK(4,  { GB_TRY(memory_read(gb));                                        }); // T6
-  INSTR_TICK(5,  { gb->cpu.write_value = gb->cpu.read_value;                       }); // T7
-  INSTR_TICK(6,  { gb->cpu.addr = gb->cpu.reg.pc;                                  }); // T8
-  INSTR_TICK(7,  { gb->cpu.reg.pc++;                                               }); // T9
-  INSTR_TICK(8,  { GB_TRY(memory_read(gb));                                        }); // T10
-  INSTR_TICK(9,  { gb->cpu.addr = (gb->cpu.read_value << 8) | gb->cpu.write_value; }); // T11
-  INSTR_TICK(10, { gb->cpu.write_value = r8;                                       }); // T12
-  INSTR_TICK(11, { GB_TRY(memory_write(gb));                                       }); // T13
-  INSTR_TICK(12, { return check_interrupts(gb);                                    }); // T16
+  INSTR_TICK(0,  {                                                                           }); // T4
+  INSTR_TICK(1,  {                                                                           }); // T5
+  INSTR_TICK(2,  { gb->cpu.addr = gb->cpu.reg.pc;                                            }); // T6
+  INSTR_TICK(3,  { gb->cpu.reg.pc++;                                                         }); // T7
+  INSTR_TICK(4,  { GB_TRY(memory_read(gb));                                                  }); // T8
+  INSTR_TICK(5,  { gb->cpu.write_value = gb->cpu.read_value;                                 }); // T9
+  INSTR_TICK(6,  { gb->cpu.addr = gb->cpu.reg.pc;                                            }); // T10
+  INSTR_TICK(7,  { gb->cpu.reg.pc++;                                                         }); // T11
+  INSTR_TICK(8,  { GB_TRY(memory_read(gb));                                                  }); // T12
+  INSTR_TICK(9,  { gb->cpu.addr = (gb->cpu.read_value << 8) | gb->cpu.write_value;           }); // T13
+  INSTR_TICK(10, { gb->cpu.write_value = r8;                                                 }); // T14
+  INSTR_TICK(11, { GB_TRY(memory_write(gb));                                                 }); // T15
+  INSTR_TICK(12, { return check_interrupts(gb);                                              }); // T16
 INSTR_END
 
 INSTR_BEGIN_ONE_PARAM(ld_r8_addr_a16, uint8_t *, r8)
-  INSTR_TICK(0,  {                                                                 }); // T14
-  INSTR_TICK(1,  {                                                                 }); // T15
-  INSTR_TICK(2,  { gb->cpu.addr = gb->cpu.reg.pc;                                  }); // T4
-  INSTR_TICK(3,  { gb->cpu.reg.pc++;                                               }); // T5
-  INSTR_TICK(4,  { GB_TRY(memory_read(gb));                                        }); // T6
-  INSTR_TICK(5,  { gb->cpu.write_value = gb->cpu.read_value;                       }); // T7
-  INSTR_TICK(6,  { gb->cpu.addr = gb->cpu.reg.pc;                                  }); // T8
-  INSTR_TICK(7,  { gb->cpu.reg.pc++;                                               }); // T9
-  INSTR_TICK(8,  { GB_TRY(memory_read(gb));                                        }); // T10
-  INSTR_TICK(9,  { gb->cpu.addr = (gb->cpu.read_value << 8) | gb->cpu.write_value; }); // T11
-  INSTR_TICK(10, { GB_TRY(memory_read(gb));                                        }); // T12
-  INSTR_TICK(11, { *r8 = gb->cpu.read_value;                                       }); // T13
-  INSTR_TICK(12, { return check_interrupts(gb);                                    }); // T16
+  INSTR_TICK(0,  {                                                                           }); // T4
+  INSTR_TICK(1,  {                                                                           }); // T5
+  INSTR_TICK(2,  { gb->cpu.addr = gb->cpu.reg.pc;                                            }); // T6
+  INSTR_TICK(3,  { gb->cpu.reg.pc++;                                                         }); // T7
+  INSTR_TICK(4,  { GB_TRY(memory_read(gb));                                                  }); // T8
+  INSTR_TICK(5,  { gb->cpu.write_value = gb->cpu.read_value;                                 }); // T9
+  INSTR_TICK(6,  { gb->cpu.addr = gb->cpu.reg.pc;                                            }); // T10
+  INSTR_TICK(7,  { gb->cpu.reg.pc++;                                                         }); // T11
+  INSTR_TICK(8,  { GB_TRY(memory_read(gb));                                                  }); // T12
+  INSTR_TICK(9,  { gb->cpu.addr = (gb->cpu.read_value << 8) | gb->cpu.write_value;           }); // T13
+  INSTR_TICK(10, { GB_TRY(memory_read(gb));                                                  }); // T14
+  INSTR_TICK(11, { *r8 = gb->cpu.read_value;                                                 }); // T15
+  INSTR_TICK(12, { return check_interrupts(gb);                                              }); // T16
 INSTR_END
 
 INSTR_BEGIN_ONE_PARAM(ld_r16_n16, uint16_t *, r16)
-  INSTR_TICK(0, { gb->cpu.addr = gb->cpu.reg.pc;                          }); // T4
-  INSTR_TICK(1, { gb->cpu.reg.pc++;                                       }); // T5
-  INSTR_TICK(2, { GB_TRY(memory_read(gb));                                }); // T6
-  INSTR_TICK(3, { gb->cpu.write_value = gb->cpu.read_value;               }); // T7
-  INSTR_TICK(4, { gb->cpu.addr = gb->cpu.reg.pc;                          }); // T8
-  INSTR_TICK(5, { gb->cpu.reg.pc++;                                       }); // T9
-  INSTR_TICK(6, { GB_TRY(memory_read(gb));                                }); // T10
-  INSTR_TICK(7, { *r16 = (gb->cpu.read_value << 8) | gb->cpu.write_value; }); // T11
-  INSTR_TICK(8, { return check_interrupts(gb);                            }); // T12
+  INSTR_TICK(0, { gb->cpu.addr = gb->cpu.reg.pc;                                             }); // T4
+  INSTR_TICK(1, { gb->cpu.reg.pc++;                                                          }); // T5
+  INSTR_TICK(2, { GB_TRY(memory_read(gb));                                                   }); // T6
+  INSTR_TICK(3, { gb->cpu.write_value = gb->cpu.read_value;                                  }); // T7
+  INSTR_TICK(4, { gb->cpu.addr = gb->cpu.reg.pc;                                             }); // T8
+  INSTR_TICK(5, { gb->cpu.reg.pc++;                                                          }); // T9
+  INSTR_TICK(6, { GB_TRY(memory_read(gb));                                                   }); // T10
+  INSTR_TICK(7, { *r16 = (gb->cpu.read_value << 8) | gb->cpu.write_value;                    }); // T11
+  INSTR_TICK(8, { return check_interrupts(gb);                                               }); // T12
 INSTR_END
 
 INSTR_BEGIN(ld_addr_a16_sp)
-  INSTR_TICK(0,  {                                                                 }); // T17
-  INSTR_TICK(1,  {                                                                 }); // T18
-  INSTR_TICK(2,  {                                                                 }); // T19
-  INSTR_TICK(3,  { gb->cpu.addr = gb->cpu.reg.pc;                                  }); // T4
-  INSTR_TICK(4,  { gb->cpu.reg.pc++;                                               }); // T5
-  INSTR_TICK(5,  { GB_TRY(memory_read(gb));                                        }); // T6
-  INSTR_TICK(6,  { gb->cpu.write_value = gb->cpu.read_value;                       }); // T7
-  INSTR_TICK(7,  { gb->cpu.addr = gb->cpu.reg.pc;                                  }); // T8
-  INSTR_TICK(8,  { gb->cpu.reg.pc++;                                               }); // T9
-  INSTR_TICK(9,  { GB_TRY(memory_read(gb));                                        }); // T10
-  INSTR_TICK(10, { gb->cpu.addr = (gb->cpu.read_value << 8) | gb->cpu.write_value; }); // T11
-  INSTR_TICK(11, { gb->cpu.write_value = gb->cpu.reg.sp & 0xFF;                    }); // T12
-  INSTR_TICK(12, { GB_TRY(memory_write(gb));                                       }); // T13
-  INSTR_TICK(13, { gb->cpu.addr++;                                                 }); // T14
-  INSTR_TICK(14, { gb->cpu.write_value = (gb->cpu.reg.sp >> 8) & 0xFF;             }); // T15
-  INSTR_TICK(15, { GB_TRY(memory_write(gb));                                       }); // T16
-  INSTR_TICK(16, { return check_interrupts(gb);                                    }); // T20
+  INSTR_TICK(0,  {                                                                           }); // T4
+  INSTR_TICK(1,  {                                                                           }); // T5
+  INSTR_TICK(2,  {                                                                           }); // T6
+  INSTR_TICK(3,  { gb->cpu.addr = gb->cpu.reg.pc;                                            }); // T7
+  INSTR_TICK(4,  { gb->cpu.reg.pc++;                                                         }); // T8
+  INSTR_TICK(5,  { GB_TRY(memory_read(gb));                                                  }); // T9
+  INSTR_TICK(6,  { gb->cpu.write_value = gb->cpu.read_value;                                 }); // T10
+  INSTR_TICK(7,  { gb->cpu.addr = gb->cpu.reg.pc;                                            }); // T11
+  INSTR_TICK(8,  { gb->cpu.reg.pc++;                                                         }); // T12
+  INSTR_TICK(9,  { GB_TRY(memory_read(gb));                                                  }); // T13
+  INSTR_TICK(10, { gb->cpu.addr = (gb->cpu.read_value << 8) | gb->cpu.write_value;           }); // T14
+  INSTR_TICK(11, { gb->cpu.write_value = gb->cpu.reg.sp & 0xFF;                              }); // T15
+  INSTR_TICK(12, { GB_TRY(memory_write(gb));                                                 }); // T16
+  INSTR_TICK(13, { gb->cpu.addr++;                                                           }); // T17
+  INSTR_TICK(14, { gb->cpu.write_value = (gb->cpu.reg.sp >> 8) & 0xFF;                       }); // T18
+  INSTR_TICK(15, { GB_TRY(memory_write(gb));                                                 }); // T19
+  INSTR_TICK(16, { return check_interrupts(gb);                                              }); // T20
 INSTR_END
 
 INSTR_BEGIN_ONE_PARAM(ldh_r8_addr_a8, uint8_t *, r8)
-  INSTR_TICK(0, {                                             }); // T10
-  INSTR_TICK(1, {                                             }); // T11
-  INSTR_TICK(2, { gb->cpu.addr = gb->cpu.reg.pc;              }); // T4
-  INSTR_TICK(3, { gb->cpu.reg.pc++;                           }); // T5
-  INSTR_TICK(4, { GB_TRY(memory_read(gb));                    }); // T6
-  INSTR_TICK(5, { gb->cpu.addr = 0xFF00 + gb->cpu.read_value; }); // T7
-  INSTR_TICK(6, { GB_TRY(memory_read(gb));                    }); // T8
-  INSTR_TICK(7, { *r8 = gb->cpu.read_value;                   }); // T9
-  INSTR_TICK(8, { return check_interrupts(gb);                }); // T12
+  INSTR_TICK(0, {                                                                            }); // T4
+  INSTR_TICK(1, {                                                                            }); // T5
+  INSTR_TICK(2, { gb->cpu.addr = gb->cpu.reg.pc;                                             }); // T6
+  INSTR_TICK(3, { gb->cpu.reg.pc++;                                                          }); // T7
+  INSTR_TICK(4, { GB_TRY(memory_read(gb));                                                   }); // T8
+  INSTR_TICK(5, { gb->cpu.addr = 0xFF00 + gb->cpu.read_value;                                }); // T9
+  INSTR_TICK(6, { GB_TRY(memory_read(gb));                                                   }); // T10
+  INSTR_TICK(7, { *r8 = gb->cpu.read_value;                                                  }); // T11
+  INSTR_TICK(8, { return check_interrupts(gb);                                               }); // T12
 INSTR_END
 
 INSTR_BEGIN_ONE_PARAM(ldh_addr_a8_r8, uint8_t, r8)
-  INSTR_TICK(0, {                                             }); // T10
-  INSTR_TICK(1, {                                             }); // T11
-  INSTR_TICK(2, { gb->cpu.addr = gb->cpu.reg.pc;              }); // T4
-  INSTR_TICK(3, { gb->cpu.reg.pc++;                           }); // T5
-  INSTR_TICK(4, { GB_TRY(memory_read(gb));                    }); // T6
-  INSTR_TICK(5, { gb->cpu.addr = 0xFF00 + gb->cpu.read_value; }); // T7
-  INSTR_TICK(6, { gb->cpu.write_value = r8;                   }); // T8
-  INSTR_TICK(7, { GB_TRY(memory_write(gb));                   }); // T9
-  INSTR_TICK(8, { return check_interrupts(gb);                }); // T12
+  INSTR_TICK(0, {                                                                            }); // T4
+  INSTR_TICK(1, {                                                                            }); // T5
+  INSTR_TICK(2, { gb->cpu.addr = gb->cpu.reg.pc;                                             }); // T6
+  INSTR_TICK(3, { gb->cpu.reg.pc++;                                                          }); // T7
+  INSTR_TICK(4, { GB_TRY(memory_read(gb));                                                   }); // T8
+  INSTR_TICK(5, { gb->cpu.addr = 0xFF00 + gb->cpu.read_value;                                }); // T9
+  INSTR_TICK(6, { gb->cpu.write_value = r8;                                                  }); // T10
+  INSTR_TICK(7, { GB_TRY(memory_write(gb));                                                  }); // T11
+  INSTR_TICK(8, { return check_interrupts(gb);                                               }); // T12
 INSTR_END
 
 INSTR_BEGIN_TWO_PARAMS(ld_r16_r16_e8, uint16_t *, r16_l, uint16_t, r16_r)
-  INSTR_TICK(0, {                                                            }); // T8
-  INSTR_TICK(1, {                                                            }); // T9
-  INSTR_TICK(2, {                                                            }); // T10
-  INSTR_TICK(3, {                                                            }); // T11
-  INSTR_TICK(4, { gb->cpu.addr = gb->cpu.reg.pc;                             }); // T4
-  INSTR_TICK(5, { gb->cpu.reg.pc++;                                          }); // T5
-  INSTR_TICK(6, { GB_TRY(memory_read(gb));                                   }); // T6
+  INSTR_TICK(0, {                                                                            }); // T4
+  INSTR_TICK(1, {                                                                            }); // T5
+  INSTR_TICK(2, {                                                                            }); // T6
+  INSTR_TICK(3, {                                                                            }); // T7
+  INSTR_TICK(4, { gb->cpu.addr = gb->cpu.reg.pc;                                             }); // T8
+  INSTR_TICK(5, { gb->cpu.reg.pc++;                                                          }); // T9
+  INSTR_TICK(6, { GB_TRY(memory_read(gb));                                                   }); // T10
   INSTR_TICK(7, { const int8_t e8 = (int8_t)gb->cpu.read_value;
                   *r16_l = r16_r + e8;
                   gb->cpu.reg.zero = 0;
                   gb->cpu.reg.subtract = 0;
                   gb->cpu.reg.half_carry = ((r16_r & 0x0F) + (e8 & 0x0F)) > 0x0F;
-                  gb->cpu.reg.carry = ((r16_r & 0xFF) + (e8 & 0xFF)) > 0xFF; }); // T7
-  INSTR_TICK(8, { return check_interrupts(gb);                               }); // T12
+                  gb->cpu.reg.carry = ((r16_r & 0xFF) + (e8 & 0xFF)) > 0xFF;                 }); // T11
+  INSTR_TICK(8, { return check_interrupts(gb);                                               }); // T12
 INSTR_END
 
 INSTR_BEGIN_TWO_PARAMS(ld_r16_r16, uint16_t *, r16_l, uint16_t, r16_r)
-  INSTR_TICK(0, {                              }); // T4
-  INSTR_TICK(1, {                              }); // T5
-  INSTR_TICK(2, {                              }); // T6
-  INSTR_TICK(3, { *r16_l = r16_r;              }); // T7
-  INSTR_TICK(4, { return check_interrupts(gb); }); // T8
+  INSTR_TICK(0, {                                                                            }); // T4
+  INSTR_TICK(1, {                                                                            }); // T5
+  INSTR_TICK(2, {                                                                            }); // T6
+  INSTR_TICK(3, { *r16_l = r16_r;                                                            }); // T7
+  INSTR_TICK(4, { return check_interrupts(gb);                                               }); // T8
 INSTR_END
 
 INSTR_BEGIN_TWO_PARAMS(add_r16_r16, uint16_t *, r16_l, uint16_t, r16_r)
@@ -573,19 +573,19 @@ INSTR_BEGIN_TWO_PARAMS(add_r16_r16, uint16_t *, r16_l, uint16_t, r16_r)
 INSTR_END
 
 INSTR_BEGIN_ONE_PARAM(inc_r16, uint16_t *, r16)
-  INSTR_TICK(0, {                              }); // T4
-  INSTR_TICK(1, {                              }); // T5
-  INSTR_TICK(2, {                              }); // T6
-  INSTR_TICK(3, { (*r16)++;                    }); // T7
-  INSTR_TICK(4, { return check_interrupts(gb); }); // T8
+  INSTR_TICK(0, {                                                                            }); // T4
+  INSTR_TICK(1, {                                                                            }); // T5
+  INSTR_TICK(2, {                                                                            }); // T6
+  INSTR_TICK(3, { (*r16)++;                                                                  }); // T7
+  INSTR_TICK(4, { return check_interrupts(gb);                                               }); // T8
 INSTR_END
 
-INSTR_BEGIN_ONE_PARAM(dec_r16, uint16_t *, r16)
-  INSTR_TICK(0, {                              }); // T4
-  INSTR_TICK(1, {                              }); // T5
-  INSTR_TICK(2, {                              }); // T6
-  INSTR_TICK(3, { (*r16)--;                    }); // T7
-  INSTR_TICK(4, { return check_interrupts(gb); }); // T8
+INSTR_BEGIN_ONE_PARAM(dec_r16, uint16_t *, r16)                                              
+  INSTR_TICK(0, {                                                                            }); // T4
+  INSTR_TICK(1, {                                                                            }); // T5
+  INSTR_TICK(2, {                                                                            }); // T6
+  INSTR_TICK(3, { (*r16)--;                                                                  }); // T7
+  INSTR_TICK(4, { return check_interrupts(gb);                                               }); // T8
 INSTR_END
 
 INSTR_BEGIN_ONE_PARAM(inc_r8, uint8_t *, r8)
@@ -593,7 +593,7 @@ INSTR_BEGIN_ONE_PARAM(inc_r8, uint8_t *, r8)
                   gb->cpu.reg.half_carry = (((*r8) & 0x0F) + 1) > 0x0F;
                   (*r8)++;
                   gb->cpu.reg.zero = ((*r8) == 0);
-                  return check_interrupts(gb); }); // T4
+                  return check_interrupts(gb);                                               }); // T4
 INSTR_END
 
 INSTR_BEGIN_ONE_PARAM(dec_r8, uint8_t *, r8)
@@ -601,69 +601,69 @@ INSTR_BEGIN_ONE_PARAM(dec_r8, uint8_t *, r8)
                   gb->cpu.reg.half_carry = ((*r8 & 0x0F) == 0x00);
                   (*r8)--;
                   gb->cpu.reg.zero = ((*r8) == 0);
-                  return check_interrupts(gb); }); // T4
+                  return check_interrupts(gb);                                               }); // T4
 INSTR_END
 
 INSTR_BEGIN_ONE_PARAM(inc_addr, uint16_t, addr)
-  INSTR_TICK(0, { gb->cpu.addr = addr;                                               }); // T4
-  INSTR_TICK(1, { GB_TRY(memory_read(gb));                                           }); // T5
-  INSTR_TICK(2, { gb->cpu.reg.subtract = 0;                                          }); // T6
-  INSTR_TICK(3, { gb->cpu.reg.half_carry = ((gb->cpu.read_value & 0x0F) + 1) > 0x0F; }); // T7
-  INSTR_TICK(4, { gb->cpu.read_value++;                                              }); // T8
-  INSTR_TICK(5, { gb->cpu.reg.zero = (gb->cpu.read_value == 0);                      }); // T9
-  INSTR_TICK(6, { gb->cpu.write_value = gb->cpu.read_value;                          }); // T10
-  INSTR_TICK(7, { GB_TRY(memory_write(gb));                                          }); // T11
-  INSTR_TICK(8, { return check_interrupts(gb);                                       }); // T12
+  INSTR_TICK(0, { gb->cpu.addr = addr;                                                       }); // T4
+  INSTR_TICK(1, { GB_TRY(memory_read(gb));                                                   }); // T5
+  INSTR_TICK(2, { gb->cpu.reg.subtract = 0;                                                  }); // T6
+  INSTR_TICK(3, { gb->cpu.reg.half_carry = ((gb->cpu.read_value & 0x0F) + 1) > 0x0F;         }); // T7
+  INSTR_TICK(4, { gb->cpu.read_value++;                                                      }); // T8
+  INSTR_TICK(5, { gb->cpu.reg.zero = (gb->cpu.read_value == 0);                              }); // T9
+  INSTR_TICK(6, { gb->cpu.write_value = gb->cpu.read_value;                                  }); // T10
+  INSTR_TICK(7, { GB_TRY(memory_write(gb));                                                  }); // T11
+  INSTR_TICK(8, { return check_interrupts(gb);                                               }); // T12
 INSTR_END
 
 INSTR_BEGIN_ONE_PARAM(dec_addr, uint16_t, addr)
-  INSTR_TICK(0, { gb->cpu.addr = addr;                                          }); // T4
-  INSTR_TICK(1, { GB_TRY(memory_read(gb));                                      }); // T5
-  INSTR_TICK(2, { gb->cpu.reg.subtract = 1;                                     }); // T6
-  INSTR_TICK(3, { gb->cpu.reg.half_carry = (gb->cpu.read_value & 0x0F) == 0x00; }); // T7
-  INSTR_TICK(4, { gb->cpu.read_value--;                                         }); // T8
-  INSTR_TICK(5, { gb->cpu.reg.zero = (gb->cpu.read_value == 0);                 }); // T9
-  INSTR_TICK(6, { gb->cpu.write_value = gb->cpu.read_value;                     }); // T10
-  INSTR_TICK(7, { GB_TRY(memory_write(gb));                                     }); // T11
-  INSTR_TICK(8, { return check_interrupts(gb);                                  }); // T12
+  INSTR_TICK(0, { gb->cpu.addr = addr;                                                       }); // T4
+  INSTR_TICK(1, { GB_TRY(memory_read(gb));                                                   }); // T5
+  INSTR_TICK(2, { gb->cpu.reg.subtract = 1;                                                  }); // T6
+  INSTR_TICK(3, { gb->cpu.reg.half_carry = (gb->cpu.read_value & 0x0F) == 0x00;              }); // T7
+  INSTR_TICK(4, { gb->cpu.read_value--;                                                      }); // T8
+  INSTR_TICK(5, { gb->cpu.reg.zero = (gb->cpu.read_value == 0);                              }); // T9
+  INSTR_TICK(6, { gb->cpu.write_value = gb->cpu.read_value;                                  }); // T10
+  INSTR_TICK(7, { GB_TRY(memory_write(gb));                                                  }); // T11
+  INSTR_TICK(8, { return check_interrupts(gb);                                               }); // T12
 INSTR_END
 
 INSTR_BEGIN_TWO_PARAMS(add_r8_r8, uint8_t *, r8_l, uint8_t, r8_r)
   INSTR_TICK(0, { uint8_t carry = 0;
                   add_r8_r8_c(gb, r8_l, r8_r, &carry);
-                  return check_interrupts(gb); }); // T4
+                  return check_interrupts(gb);                                               }); // T4
 INSTR_END
 
 INSTR_BEGIN_TWO_PARAMS(add_r8_addr, uint8_t *, r8, uint16_t, addr)
-  INSTR_TICK(0, {                                                  }); // T7
-  INSTR_TICK(1, { gb->cpu.addr = addr;                             }); // T4
-  INSTR_TICK(2, { GB_TRY(memory_read(gb));                         }); // T5
+  INSTR_TICK(0, {                                                                            }); // T4
+  INSTR_TICK(1, { gb->cpu.addr = addr;                                                       }); // T5
+  INSTR_TICK(2, { GB_TRY(memory_read(gb));                                                   }); // T6
   INSTR_TICK(3, { uint8_t carry = 0;
-                  add_r8_r8_c(gb, r8, gb->cpu.read_value, &carry); }); // T6
-  INSTR_TICK(4, { return check_interrupts(gb);                     }); // T8
+                  add_r8_r8_c(gb, r8, gb->cpu.read_value, &carry);                           }); // T7
+  INSTR_TICK(4, { return check_interrupts(gb);                                               }); // T8
 INSTR_END
 
 INSTR_BEGIN_ONE_PARAM(add_r8_n8, uint8_t *, r8)
-  INSTR_TICK(0, { gb->cpu.addr = gb->cpu.reg.pc;                   }); // T4
-  INSTR_TICK(1, { gb->cpu.reg.pc++;                                }); // T5
-  INSTR_TICK(2, { GB_TRY(memory_read(gb));                         }); // T6
+  INSTR_TICK(0, { gb->cpu.addr = gb->cpu.reg.pc;                                             }); // T4
+  INSTR_TICK(1, { gb->cpu.reg.pc++;                                                          }); // T5
+  INSTR_TICK(2, { GB_TRY(memory_read(gb));                                                   }); // T6
   INSTR_TICK(3, { uint8_t carry = 0;
-                  add_r8_r8_c(gb, r8, gb->cpu.read_value, &carry); }); // T7
-  INSTR_TICK(4, { return check_interrupts(gb);                     }); // T8
+                  add_r8_r8_c(gb, r8, gb->cpu.read_value, &carry);                           }); // T7
+  INSTR_TICK(4, { return check_interrupts(gb);                                               }); // T8
 INSTR_END
 
 INSTR_BEGIN(add_sp_e8)
-  INSTR_TICK(0,  {                                }); // T8
-  INSTR_TICK(1,  {                                }); // T9
-  INSTR_TICK(2,  {                                }); // T10
-  INSTR_TICK(3,  {                                }); // T11
-  INSTR_TICK(4,  {                                }); // T12
-  INSTR_TICK(5,  {                                }); // T13
-  INSTR_TICK(6,  {                                }); // T14
-  INSTR_TICK(7,  {                                }); // T15
-  INSTR_TICK(8,  { gb->cpu.addr = gb->cpu.reg.pc; }); // T4
-  INSTR_TICK(9,  { gb->cpu.reg.pc++;              }); // T5
-  INSTR_TICK(10, { GB_TRY(memory_read(gb));       }); // T6
+  INSTR_TICK(0,  {                                                                           }); // T4
+  INSTR_TICK(1,  {                                                                           }); // T5
+  INSTR_TICK(2,  {                                                                           }); // T6
+  INSTR_TICK(3,  {                                                                           }); // T7
+  INSTR_TICK(4,  {                                                                           }); // T8
+  INSTR_TICK(5,  {                                                                           }); // T9
+  INSTR_TICK(6,  {                                                                           }); // T10
+  INSTR_TICK(7,  {                                                                           }); // T11
+  INSTR_TICK(8,  { gb->cpu.addr = gb->cpu.reg.pc;                                            }); // T12
+  INSTR_TICK(9,  { gb->cpu.reg.pc++;                                                         }); // T13
+  INSTR_TICK(10, { GB_TRY(memory_read(gb));                                                  }); // T14
   INSTR_TICK(11, { const int8_t e8 = (int8_t)gb->cpu.read_value;
                    const uint16_t sp = gb->cpu.reg.sp;
                    const uint16_t result = sp + e8;
@@ -671,80 +671,80 @@ INSTR_BEGIN(add_sp_e8)
                    gb->cpu.reg.subtract = 0;
                    gb->cpu.reg.half_carry = ((sp & 0x0F) + (e8 & 0x0F)) > 0x0F;
                    gb->cpu.reg.carry = ((sp & 0xFF) + (e8 & 0xFF)) > 0xFF;
-                   gb->cpu.reg.sp = result;       }); // T7
-  INSTR_TICK(12, { return check_interrupts(gb);   }); // T16
+                   gb->cpu.reg.sp = result;                                                  }); // T15
+  INSTR_TICK(12, { return check_interrupts(gb);                                              }); // T16
 INSTR_END
 
 INSTR_BEGIN_TWO_PARAMS(adc_r8_r8, uint8_t *, r8_l, uint8_t, r8_r)
   INSTR_TICK(0, { uint8_t carry = gb->cpu.reg.carry;
                   add_r8_r8_c(gb, r8_l, r8_r, &carry);
-                  return check_interrupts(gb); }); // T4
+                  return check_interrupts(gb);                                               }); // T4
 INSTR_END
 
 INSTR_BEGIN_TWO_PARAMS(adc_r8_addr, uint8_t *, r8, uint16_t, addr)
-  INSTR_TICK(0, {                                                  }); // T7
-  INSTR_TICK(1, { gb->cpu.addr = addr;                             }); // T4
-  INSTR_TICK(2, { GB_TRY(memory_read(gb));                         }); // T5
+  INSTR_TICK(0, {                                                                            }); // T4
+  INSTR_TICK(1, { gb->cpu.addr = addr;                                                       }); // T5
+  INSTR_TICK(2, { GB_TRY(memory_read(gb));                                                   }); // T6
   INSTR_TICK(3, { uint8_t carry = gb->cpu.reg.carry;
-                  add_r8_r8_c(gb, r8, gb->cpu.read_value, &carry); }); // T6
-  INSTR_TICK(4, { return check_interrupts(gb);                     }); // T8
+                  add_r8_r8_c(gb, r8, gb->cpu.read_value, &carry);                           }); // T7
+  INSTR_TICK(4, { return check_interrupts(gb);                                               }); // T8
 INSTR_END
 
 INSTR_BEGIN_ONE_PARAM(adc_r8_n8, uint8_t *, r8)
-  INSTR_TICK(0, { gb->cpu.addr = gb->cpu.reg.pc;                   }); // T4
-  INSTR_TICK(1, { gb->cpu.reg.pc++;                                }); // T5
-  INSTR_TICK(2, { GB_TRY(memory_read(gb));                         }); // T6
+  INSTR_TICK(0, { gb->cpu.addr = gb->cpu.reg.pc;                                             }); // T4
+  INSTR_TICK(1, { gb->cpu.reg.pc++;                                                          }); // T5
+  INSTR_TICK(2, { GB_TRY(memory_read(gb));                                                   }); // T6
   INSTR_TICK(3, { uint8_t carry = gb->cpu.reg.carry;
-                  add_r8_r8_c(gb, r8, gb->cpu.read_value, &carry); }); // T7
-  INSTR_TICK(4, { return check_interrupts(gb);                     }); // T8
+                  add_r8_r8_c(gb, r8, gb->cpu.read_value, &carry);                           }); // T7
+  INSTR_TICK(4, { return check_interrupts(gb);                                               }); // T8
 INSTR_END
 
 INSTR_BEGIN_TWO_PARAMS(sub_r8_r8, uint8_t *, r8_l, uint8_t, r8_r)
   INSTR_TICK(0, { uint8_t carry = 0;
                   sub_r8_r8_c(gb, r8_l, r8_r, &carry);
-                  return check_interrupts(gb); }); // T4
+                  return check_interrupts(gb);                                               }); // T4
 INSTR_END
 
 INSTR_BEGIN_TWO_PARAMS(sub_r8_addr, uint8_t *, r8, uint16_t, addr)
-  INSTR_TICK(0, {                                                  }); // T7
-  INSTR_TICK(1, { gb->cpu.addr = addr;                             }); // T4
-  INSTR_TICK(2, { GB_TRY(memory_read(gb));                         }); // T5
+  INSTR_TICK(0, {                                                                            }); // T4
+  INSTR_TICK(1, { gb->cpu.addr = addr;                                                       }); // T5
+  INSTR_TICK(2, { GB_TRY(memory_read(gb));                                                   }); // T6
   INSTR_TICK(3, { uint8_t carry = 0;
-                  sub_r8_r8_c(gb, r8, gb->cpu.read_value, &carry); }); // T6
-  INSTR_TICK(4, { return check_interrupts(gb);                     }); // T8
+                  sub_r8_r8_c(gb, r8, gb->cpu.read_value, &carry);                           }); // T7
+  INSTR_TICK(4, { return check_interrupts(gb);                                               }); // T8
 INSTR_END
 
 INSTR_BEGIN_ONE_PARAM(sub_r8_n8, uint8_t *, r8)
-  INSTR_TICK(0, { gb->cpu.addr = gb->cpu.reg.pc;                   }); // T4
-  INSTR_TICK(1, { gb->cpu.reg.pc++;                                }); // T5
-  INSTR_TICK(2, { GB_TRY(memory_read(gb));                         }); // T6
+  INSTR_TICK(0, { gb->cpu.addr = gb->cpu.reg.pc;                                             }); // T4
+  INSTR_TICK(1, { gb->cpu.reg.pc++;                                                          }); // T5
+  INSTR_TICK(2, { GB_TRY(memory_read(gb));                                                   }); // T6
   INSTR_TICK(3, { uint8_t carry = 0;
-                  sub_r8_r8_c(gb, r8, gb->cpu.read_value, &carry); }); // T7
-  INSTR_TICK(4, { return check_interrupts(gb);                     }); // T8
+                  sub_r8_r8_c(gb, r8, gb->cpu.read_value, &carry);                           }); // T7
+  INSTR_TICK(4, { return check_interrupts(gb);                                               }); // T8
 INSTR_END
 
 INSTR_BEGIN_TWO_PARAMS(sbc_r8_r8, uint8_t *, r8_l, uint8_t, r8_r)
   INSTR_TICK(0, { uint8_t carry = gb->cpu.reg.carry;
                   sub_r8_r8_c(gb, r8_l, r8_r, &carry);
-                  return check_interrupts(gb); }); // T4
+                  return check_interrupts(gb);                                               }); // T4
 INSTR_END
 
 INSTR_BEGIN_TWO_PARAMS(sbc_r8_addr, uint8_t *, r8, uint16_t, addr)
-  INSTR_TICK(0, {                                                  }); // T7
-  INSTR_TICK(1, { gb->cpu.addr = addr;                             }); // T4
-  INSTR_TICK(2, { GB_TRY(memory_read(gb));                         }); // T5
+  INSTR_TICK(0, {                                                                            }); // T4
+  INSTR_TICK(1, { gb->cpu.addr = addr;                                                       }); // T5
+  INSTR_TICK(2, { GB_TRY(memory_read(gb));                                                   }); // T6
   INSTR_TICK(3, { uint8_t carry = gb->cpu.reg.carry;
-                  sub_r8_r8_c(gb, r8, gb->cpu.read_value, &carry); }); // T6
-  INSTR_TICK(4, { return check_interrupts(gb);                     }); // T8
+                  sub_r8_r8_c(gb, r8, gb->cpu.read_value, &carry);                           }); // T7
+  INSTR_TICK(4, { return check_interrupts(gb);                                               }); // T8
 INSTR_END
 
 INSTR_BEGIN_ONE_PARAM(sbc_r8_n8, uint8_t *, r8)
-  INSTR_TICK(0, { gb->cpu.addr = gb->cpu.reg.pc;                   }); // T4
-  INSTR_TICK(1, { gb->cpu.reg.pc++;                                }); // T5
-  INSTR_TICK(2, { GB_TRY(memory_read(gb));                         }); // T6
+  INSTR_TICK(0, { gb->cpu.addr = gb->cpu.reg.pc;                                             }); // T4
+  INSTR_TICK(1, { gb->cpu.reg.pc++;                                                          }); // T5
+  INSTR_TICK(2, { GB_TRY(memory_read(gb));                                                   }); // T6
   INSTR_TICK(3, { uint8_t carry = gb->cpu.reg.carry;
-                  sub_r8_r8_c(gb, r8, gb->cpu.read_value, &carry); }); // T7
-  INSTR_TICK(4, { return check_interrupts(gb);                     }); // T8
+                  sub_r8_r8_c(gb, r8, gb->cpu.read_value, &carry);                           }); // T7
+  INSTR_TICK(4, { return check_interrupts(gb);                                               }); // T8
 INSTR_END
 
 INSTR_BEGIN_TWO_PARAMS(and_r8_r8, uint8_t *, r8_l, uint8_t, r8_r)
@@ -753,31 +753,31 @@ INSTR_BEGIN_TWO_PARAMS(and_r8_r8, uint8_t *, r8_l, uint8_t, r8_r)
                   gb->cpu.reg.half_carry = 1;
                   gb->cpu.reg.subtract = 0;
                   gb->cpu.reg.zero = ((*r8_l) == 0);
-                  return check_interrupts(gb); }); // T4
+                  return check_interrupts(gb);                                               }); // T4
 INSTR_END
 
 INSTR_BEGIN_TWO_PARAMS(and_r8_addr, uint8_t *, r8, uint16_t, addr)
-  INSTR_TICK(0, {                                  }); // T7
-  INSTR_TICK(1, { gb->cpu.addr = addr;             }); // T4
-  INSTR_TICK(2, { GB_TRY(memory_read(gb));         }); // T5
+  INSTR_TICK(0, {                                                                            }); // T4
+  INSTR_TICK(1, { gb->cpu.addr = addr;                                                       }); // T5
+  INSTR_TICK(2, { GB_TRY(memory_read(gb));                                                   }); // T6
   INSTR_TICK(3, { *r8 &= gb->cpu.read_value;
                   gb->cpu.reg.carry = 0;
                   gb->cpu.reg.half_carry = 1;
                   gb->cpu.reg.subtract = 0;
-                  gb->cpu.reg.zero = ((*r8) == 0); }); // T6
-  INSTR_TICK(4, { return check_interrupts(gb);     }); // T8
+                  gb->cpu.reg.zero = ((*r8) == 0);                                           }); // T7
+  INSTR_TICK(4, { return check_interrupts(gb);                                               }); // T8
 INSTR_END
 
 INSTR_BEGIN_ONE_PARAM(and_r8_n8, uint8_t *, r8)
-  INSTR_TICK(0, { gb->cpu.addr = gb->cpu.reg.pc;   }); // T4
-  INSTR_TICK(1, { gb->cpu.reg.pc++;                }); // T5
-  INSTR_TICK(2, { GB_TRY(memory_read(gb));         }); // T6
+  INSTR_TICK(0, { gb->cpu.addr = gb->cpu.reg.pc;                                             }); // T4
+  INSTR_TICK(1, { gb->cpu.reg.pc++;                                                          }); // T5
+  INSTR_TICK(2, { GB_TRY(memory_read(gb));                                                   }); // T6
   INSTR_TICK(3, { *r8 &= gb->cpu.read_value;
                   gb->cpu.reg.carry = 0;
                   gb->cpu.reg.half_carry = 1;
                   gb->cpu.reg.subtract = 0;
-                  gb->cpu.reg.zero = ((*r8) == 0); }); // T7
-  INSTR_TICK(4, { return check_interrupts(gb);     }); // T8
+                  gb->cpu.reg.zero = ((*r8) == 0);                                           }); // T7
+  INSTR_TICK(4, { return check_interrupts(gb);                                               }); // T8
 INSTR_END
 
 INSTR_BEGIN_TWO_PARAMS(or_r8_r8, uint8_t *, r8_l, uint8_t, r8_r)
@@ -786,31 +786,31 @@ INSTR_BEGIN_TWO_PARAMS(or_r8_r8, uint8_t *, r8_l, uint8_t, r8_r)
                   gb->cpu.reg.half_carry = 0;
                   gb->cpu.reg.subtract = 0;
                   gb->cpu.reg.zero = ((*r8_l) == 0);
-                  return check_interrupts(gb); }); // T4
+                  return check_interrupts(gb);                                               }); // T4
 INSTR_END
 
 INSTR_BEGIN_TWO_PARAMS(or_r8_addr, uint8_t *, r8, uint16_t, addr)
-  INSTR_TICK(0, {                                  }); // T7
-  INSTR_TICK(1, { gb->cpu.addr = addr;             }); // T4
-  INSTR_TICK(2, { GB_TRY(memory_read(gb));         }); // T5
+  INSTR_TICK(0, {                                                                            }); // T4
+  INSTR_TICK(1, { gb->cpu.addr = addr;                                                       }); // T5
+  INSTR_TICK(2, { GB_TRY(memory_read(gb));                                                   }); // T6
   INSTR_TICK(3, { *r8 |= gb->cpu.read_value;
                   gb->cpu.reg.carry = 0;
                   gb->cpu.reg.half_carry = 0;
                   gb->cpu.reg.subtract = 0;
-                  gb->cpu.reg.zero = ((*r8) == 0); }); // T6
-  INSTR_TICK(4, { return check_interrupts(gb);     }); // T8
+                  gb->cpu.reg.zero = ((*r8) == 0);                                           }); // T7
+  INSTR_TICK(4, { return check_interrupts(gb);                                               }); // T8
 INSTR_END
 
 INSTR_BEGIN_ONE_PARAM(or_r8_n8, uint8_t *, r8)
-  INSTR_TICK(0, { gb->cpu.addr = gb->cpu.reg.pc;   }); // T4
-  INSTR_TICK(1, { gb->cpu.reg.pc++;                }); // T5
-  INSTR_TICK(2, { GB_TRY(memory_read(gb));         }); // T6
+  INSTR_TICK(0, { gb->cpu.addr = gb->cpu.reg.pc;                                             }); // T4
+  INSTR_TICK(1, { gb->cpu.reg.pc++;                                                          }); // T5
+  INSTR_TICK(2, { GB_TRY(memory_read(gb));                                                   }); // T6
   INSTR_TICK(3, { *r8 |= gb->cpu.read_value;
                   gb->cpu.reg.carry = 0;
                   gb->cpu.reg.half_carry = 0;
                   gb->cpu.reg.subtract = 0;
-                  gb->cpu.reg.zero = ((*r8) == 0); }); // T7
-  INSTR_TICK(4, { return check_interrupts(gb);     }); // T8
+                  gb->cpu.reg.zero = ((*r8) == 0);                                           }); // T7
+  INSTR_TICK(4, { return check_interrupts(gb);                                               }); // T8
 INSTR_END
 
 INSTR_BEGIN_TWO_PARAMS(xor_r8_r8, uint8_t *, r8_l, uint8_t, r8_r)
@@ -819,31 +819,31 @@ INSTR_BEGIN_TWO_PARAMS(xor_r8_r8, uint8_t *, r8_l, uint8_t, r8_r)
                   gb->cpu.reg.half_carry = 0;
                   gb->cpu.reg.subtract = 0;
                   gb->cpu.reg.zero = ((*r8_l) == 0);
-                  return check_interrupts(gb); }); // T4
+                  return check_interrupts(gb);                                               }); // T4
 INSTR_END
 
 INSTR_BEGIN_TWO_PARAMS(xor_r8_addr, uint8_t *, r8, uint16_t, addr)
-  INSTR_TICK(0, {                                  }); // T7
-  INSTR_TICK(1, { gb->cpu.addr = addr;             }); // T4
-  INSTR_TICK(2, { GB_TRY(memory_read(gb));         }); // T5
+  INSTR_TICK(0, {                                                                            }); // T4
+  INSTR_TICK(1, { gb->cpu.addr = addr;                                                       }); // T5
+  INSTR_TICK(2, { GB_TRY(memory_read(gb));                                                   }); // T6
   INSTR_TICK(3, { *r8 ^= gb->cpu.read_value;
                   gb->cpu.reg.carry = 0;
                   gb->cpu.reg.half_carry = 0;
                   gb->cpu.reg.subtract = 0;
-                  gb->cpu.reg.zero = ((*r8) == 0); }); // T6
-  INSTR_TICK(4, { return check_interrupts(gb);     }); // T8
+                  gb->cpu.reg.zero = ((*r8) == 0);                                           }); // T7
+  INSTR_TICK(4, { return check_interrupts(gb);                                               }); // T8
 INSTR_END
 
 INSTR_BEGIN_ONE_PARAM(xor_r8_n8, uint8_t *, r8)
-  INSTR_TICK(0, { gb->cpu.addr = gb->cpu.reg.pc;   }); // T4
-  INSTR_TICK(1, { gb->cpu.reg.pc++;                }); // T5
-  INSTR_TICK(2, { GB_TRY(memory_read(gb));         }); // T6
+  INSTR_TICK(0, { gb->cpu.addr = gb->cpu.reg.pc;                                             }); // T4
+  INSTR_TICK(1, { gb->cpu.reg.pc++;                                                          }); // T5
+  INSTR_TICK(2, { GB_TRY(memory_read(gb));                                                   }); // T6
   INSTR_TICK(3, { *r8 ^= gb->cpu.read_value;
                   gb->cpu.reg.carry = 0;
                   gb->cpu.reg.half_carry = 0;
                   gb->cpu.reg.subtract = 0;
-                  gb->cpu.reg.zero = ((*r8) == 0); }); // T7
-  INSTR_TICK(4, { return check_interrupts(gb);     }); // T8
+                  gb->cpu.reg.zero = ((*r8) == 0);                                           }); // T7
+  INSTR_TICK(4, { return check_interrupts(gb);                                               }); // T8
 INSTR_END
 
 INSTR_BEGIN_TWO_PARAMS(cp_r8_r8, uint8_t, r8_l, uint8_t, r8_r)
@@ -851,29 +851,29 @@ INSTR_BEGIN_TWO_PARAMS(cp_r8_r8, uint8_t, r8_l, uint8_t, r8_r)
                   gb->cpu.reg.half_carry = ((r8_l & 0x0F) < (r8_r & 0x0F));
                   gb->cpu.reg.subtract = 1;
                   gb->cpu.reg.zero = (r8_l == r8_r);
-                  return check_interrupts(gb); }); // T4
+                  return check_interrupts(gb);                                               }); // T4
 INSTR_END
 
 INSTR_BEGIN_TWO_PARAMS(cp_r8_addr, uint8_t, r8, uint16_t, addr)
-  INSTR_TICK(0, {                                                }); // T7
-  INSTR_TICK(1, { gb->cpu.addr = addr;                           }); // T4
-  INSTR_TICK(2, { GB_TRY(memory_read(gb));                       }); // T5
+  INSTR_TICK(0, {                                                                            }); // T4
+  INSTR_TICK(1, { gb->cpu.addr = addr;                                                       }); // T5
+  INSTR_TICK(2, { GB_TRY(memory_read(gb));                                                   }); // T6
   INSTR_TICK(3, { gb->cpu.reg.carry = ((r8) < (gb->cpu.read_value));
                   gb->cpu.reg.half_carry = ((r8 & 0x0F) < (gb->cpu.read_value & 0x0F));
                   gb->cpu.reg.subtract = 1;
-                  gb->cpu.reg.zero = (r8 == gb->cpu.read_value); }); // T6
-  INSTR_TICK(4, { return check_interrupts(gb);                   }); // T8
+                  gb->cpu.reg.zero = (r8 == gb->cpu.read_value);                             }); // T7
+  INSTR_TICK(4, { return check_interrupts(gb);                                               }); // T8
 INSTR_END
 
 INSTR_BEGIN_ONE_PARAM(cp_r8_n8, uint8_t, r8)
-  INSTR_TICK(0, { gb->cpu.addr = gb->cpu.reg.pc;                 }); // T4
-  INSTR_TICK(1, { gb->cpu.reg.pc++;                              }); // T5
-  INSTR_TICK(2, { GB_TRY(memory_read(gb));                       }); // T6
+  INSTR_TICK(0, { gb->cpu.addr = gb->cpu.reg.pc;                                             }); // T4
+  INSTR_TICK(1, { gb->cpu.reg.pc++;                                                          }); // T5
+  INSTR_TICK(2, { GB_TRY(memory_read(gb));                                                   }); // T6
   INSTR_TICK(3, { gb->cpu.reg.carry = ((r8) < (gb->cpu.read_value));
                   gb->cpu.reg.half_carry = ((r8 & 0x0F) < (gb->cpu.read_value & 0x0F));
                   gb->cpu.reg.subtract = 1;
-                  gb->cpu.reg.zero = (r8 == gb->cpu.read_value); }); // T7
-  INSTR_TICK(4, { return check_interrupts(gb);                   }); // T8
+                  gb->cpu.reg.zero = (r8 == gb->cpu.read_value);                             }); // T7
+  INSTR_TICK(4, { return check_interrupts(gb);                                               }); // T8
 INSTR_END
 
 INSTR_BEGIN(di)
@@ -881,171 +881,171 @@ INSTR_BEGIN(di)
 INSTR_END
 
 INSTR_BEGIN(ei)
-  INSTR_TICK(0, { gb->cpu.ime_pending_delay = 2; return check_interrupts(gb); }); // T4
+  INSTR_TICK(0, { gb->cpu.ime_pending_delay = 2; return check_interrupts(gb);                }); // T4
 INSTR_END
 
 INSTR_BEGIN_ONE_PARAM(jr_cnd_e8, bool, cnd)
-  INSTR_TICK(0, { gb->cpu.addr = gb->cpu.reg.pc;                }); // T4
-  INSTR_TICK(1, { gb->cpu.reg.pc++;                             }); // T5
-  INSTR_TICK(2, { GB_TRY(memory_read(gb));                      }); // T6
-  INSTR_TICK(3, { if (!cnd) { gb->cpu.phase = 7; }              }); // T7
-  INSTR_TICK(4, {                                               }); // T8
-  INSTR_TICK(5, {                                               }); // T9
-  INSTR_TICK(6, {                                               }); // T10
-  INSTR_TICK(7, { gb->cpu.reg.pc += (int8_t)gb->cpu.read_value; }); // T11
-  INSTR_TICK(8, { return check_interrupts(gb);                  }); // T12/8
+  INSTR_TICK(0, { gb->cpu.addr = gb->cpu.reg.pc;                                             }); // T4
+  INSTR_TICK(1, { gb->cpu.reg.pc++;                                                          }); // T5
+  INSTR_TICK(2, { GB_TRY(memory_read(gb));                                                   }); // T6
+  INSTR_TICK(3, { if (!cnd) { gb->cpu.phase = 7; }                                           }); // T7
+  INSTR_TICK(4, {                                                                            }); // T8
+  INSTR_TICK(5, {                                                                            }); // T9
+  INSTR_TICK(6, {                                                                            }); // T10
+  INSTR_TICK(7, { gb->cpu.reg.pc += (int8_t)gb->cpu.read_value;                              }); // T11
+  INSTR_TICK(8, { return check_interrupts(gb);                                               }); // T12/8
 INSTR_END
 
 INSTR_BEGIN_ONE_PARAM(jp_cnd_a16, bool, cnd)
-  INSTR_TICK(0,  { gb->cpu.addr = gb->cpu.reg.pc;                                    }); // T4
-  INSTR_TICK(1,  { gb->cpu.reg.pc++;                                                 }); // T5
-  INSTR_TICK(2,  { GB_TRY(memory_read(gb));                                          }); // T6
-  INSTR_TICK(3,  { gb->cpu.write_value = gb->cpu.read_value;                         }); // T7
-  INSTR_TICK(4,  { gb->cpu.addr = gb->cpu.reg.pc;                                    }); // T8
-  INSTR_TICK(5,  { gb->cpu.reg.pc++;                                                 }); // T9
-  INSTR_TICK(6,  { GB_TRY(memory_read(gb));                                          }); // T10
-  INSTR_TICK(7,  { if (!cnd) { gb->cpu.phase = 11; }                                 }); // T11
-  INSTR_TICK(8,  {                                                                   }); // T12
-  INSTR_TICK(9,  {                                                                   }); // T13
-  INSTR_TICK(10, {                                                                   }); // T14
-  INSTR_TICK(11, { gb->cpu.reg.pc = (gb->cpu.read_value << 8) | gb->cpu.write_value; }); // T15
-  INSTR_TICK(12, { return check_interrupts(gb);                                      }); // T16/12
+  INSTR_TICK(0,  { gb->cpu.addr = gb->cpu.reg.pc;                                            }); // T4
+  INSTR_TICK(1,  { gb->cpu.reg.pc++;                                                         }); // T5
+  INSTR_TICK(2,  { GB_TRY(memory_read(gb));                                                  }); // T6
+  INSTR_TICK(3,  { gb->cpu.write_value = gb->cpu.read_value;                                 }); // T7
+  INSTR_TICK(4,  { gb->cpu.addr = gb->cpu.reg.pc;                                            }); // T8
+  INSTR_TICK(5,  { gb->cpu.reg.pc++;                                                         }); // T9
+  INSTR_TICK(6,  { GB_TRY(memory_read(gb));                                                  }); // T10
+  INSTR_TICK(7,  { if (!cnd) { gb->cpu.phase = 11; }                                         }); // T11
+  INSTR_TICK(8,  {                                                                           }); // T12
+  INSTR_TICK(9,  {                                                                           }); // T13
+  INSTR_TICK(10, {                                                                           }); // T14
+  INSTR_TICK(11, { gb->cpu.reg.pc = (gb->cpu.read_value << 8) | gb->cpu.write_value;         }); // T15
+  INSTR_TICK(12, { return check_interrupts(gb);                                              }); // T16/12
 INSTR_END
 
 INSTR_BEGIN(jp_hl)
-  INSTR_TICK(0, { gb->cpu.reg.pc = gb->cpu.reg.hl; return check_interrupts(gb); }); // T4
+  INSTR_TICK(0, { gb->cpu.reg.pc = gb->cpu.reg.hl; return check_interrupts(gb);              }); // T4
 INSTR_END
 
 INSTR_BEGIN_TWO_PARAMS(push_r16, uint8_t, h, uint8_t, l)
-  INSTR_TICK(0,  {                                }); // T12
-  INSTR_TICK(1,  {                                }); // T13
-  INSTR_TICK(2,  {                                }); // T14
-  INSTR_TICK(3,  {                                }); // T15
-  INSTR_TICK(4,  { gb->cpu.reg.sp--;              }); // T4
-  INSTR_TICK(5,  { gb->cpu.addr = gb->cpu.reg.sp; }); // T5
-  INSTR_TICK(6,  { gb->cpu.write_value = h;       }); // T6
-  INSTR_TICK(7,  { GB_TRY(memory_write(gb));      }); // T7
-  INSTR_TICK(8,  { gb->cpu.reg.sp--;              }); // T8
-  INSTR_TICK(9,  { gb->cpu.addr = gb->cpu.reg.sp; }); // T9
-  INSTR_TICK(10, { gb->cpu.write_value = l;       }); // T10
-  INSTR_TICK(11, { GB_TRY(memory_write(gb));      }); // T11
-  INSTR_TICK(12, { return check_interrupts(gb);   }); // T16
+  INSTR_TICK(0,  {                                                                           }); // T12
+  INSTR_TICK(1,  {                                                                           }); // T13
+  INSTR_TICK(2,  {                                                                           }); // T14
+  INSTR_TICK(3,  {                                                                           }); // T15
+  INSTR_TICK(4,  { gb->cpu.reg.sp--;                                                         }); // T4
+  INSTR_TICK(5,  { gb->cpu.addr = gb->cpu.reg.sp;                                            }); // T5
+  INSTR_TICK(6,  { gb->cpu.write_value = h;                                                  }); // T6
+  INSTR_TICK(7,  { GB_TRY(memory_write(gb));                                                 }); // T7
+  INSTR_TICK(8,  { gb->cpu.reg.sp--;                                                         }); // T8
+  INSTR_TICK(9,  { gb->cpu.addr = gb->cpu.reg.sp;                                            }); // T9
+  INSTR_TICK(10, { gb->cpu.write_value = l;                                                  }); // T10
+  INSTR_TICK(11, { GB_TRY(memory_write(gb));                                                 }); // T11
+  INSTR_TICK(12, { return check_interrupts(gb);                                              }); // T16
 INSTR_END
 
 INSTR_BEGIN_TWO_PARAMS(pop_r16, uint8_t *, h, uint8_t *, l)
-  INSTR_TICK(0, { gb->cpu.addr = gb->cpu.reg.sp; }); // T4
-  INSTR_TICK(1, { gb->cpu.reg.sp++;              }); // T5
-  INSTR_TICK(2, { GB_TRY(memory_read(gb));       }); // T6
-  INSTR_TICK(3, { *l = gb->cpu.read_value;       }); // T7
-  INSTR_TICK(4, { gb->cpu.addr = gb->cpu.reg.sp; }); // T8
-  INSTR_TICK(5, { gb->cpu.reg.sp++;              }); // T9
-  INSTR_TICK(6, { GB_TRY(memory_read(gb));       }); // T10
-  INSTR_TICK(7, { *h = gb->cpu.read_value;       }); // T11
-  INSTR_TICK(8, { return check_interrupts(gb);   }); // T12
+  INSTR_TICK(0, { gb->cpu.addr = gb->cpu.reg.sp;                                             }); // T4
+  INSTR_TICK(1, { gb->cpu.reg.sp++;                                                          }); // T5
+  INSTR_TICK(2, { GB_TRY(memory_read(gb));                                                   }); // T6
+  INSTR_TICK(3, { *l = gb->cpu.read_value;                                                   }); // T7
+  INSTR_TICK(4, { gb->cpu.addr = gb->cpu.reg.sp;                                             }); // T8
+  INSTR_TICK(5, { gb->cpu.reg.sp++;                                                          }); // T9
+  INSTR_TICK(6, { GB_TRY(memory_read(gb));                                                   }); // T10
+  INSTR_TICK(7, { *h = gb->cpu.read_value;                                                   }); // T11
+  INSTR_TICK(8, { return check_interrupts(gb);                                               }); // T12
 INSTR_END
 
 INSTR_BEGIN(pop_af)
-  INSTR_TICK(0, { gb->cpu.addr = gb->cpu.reg.sp;             }); // T4
-  INSTR_TICK(1, { gb->cpu.reg.sp++;                          }); // T5
-  INSTR_TICK(2, { GB_TRY(memory_read(gb));                   }); // T6
-  INSTR_TICK(3, { gb->cpu.reg.f = gb->cpu.read_value & 0xF0; }); // T7
-  INSTR_TICK(4, { gb->cpu.addr = gb->cpu.reg.sp;             }); // T8
-  INSTR_TICK(5, { gb->cpu.reg.sp++;                          }); // T9
-  INSTR_TICK(6, { GB_TRY(memory_read(gb));                   }); // T10
-  INSTR_TICK(7, { gb->cpu.reg.a = gb->cpu.read_value;        }); // T11
-  INSTR_TICK(8, { return check_interrupts(gb);               }); // T12
+  INSTR_TICK(0, { gb->cpu.addr = gb->cpu.reg.sp;                                             }); // T4
+  INSTR_TICK(1, { gb->cpu.reg.sp++;                                                          }); // T5
+  INSTR_TICK(2, { GB_TRY(memory_read(gb));                                                   }); // T6
+  INSTR_TICK(3, { gb->cpu.reg.f = gb->cpu.read_value & 0xF0;                                 }); // T7
+  INSTR_TICK(4, { gb->cpu.addr = gb->cpu.reg.sp;                                             }); // T8
+  INSTR_TICK(5, { gb->cpu.reg.sp++;                                                          }); // T9
+  INSTR_TICK(6, { GB_TRY(memory_read(gb));                                                   }); // T10
+  INSTR_TICK(7, { gb->cpu.reg.a = gb->cpu.read_value;                                        }); // T11
+  INSTR_TICK(8, { return check_interrupts(gb);                                               }); // T12
 INSTR_END
 
 INSTR_BEGIN_ONE_PARAM(call_cnd_a16, bool, cnd)
-  INSTR_TICK(0,  { gb->cpu.addr = gb->cpu.reg.pc;                                    }); // T4
-  INSTR_TICK(1,  { gb->cpu.reg.pc++;                                                 }); // T5
-  INSTR_TICK(2,  { GB_TRY(memory_read(gb));                                          }); // T6
-  INSTR_TICK(3,  { gb->cpu.write_value = gb->cpu.read_value;                         }); // T7
-  INSTR_TICK(4,  { gb->cpu.addr = gb->cpu.reg.pc;                                    }); // T8
-  INSTR_TICK(5,  { gb->cpu.reg.pc++;                                                 }); // T9
-  INSTR_TICK(6,  { GB_TRY(memory_read(gb));                                          }); // T10
-  INSTR_TICK(7,  { if (!cnd) { gb->cpu.phase = 19; }                                 }); // T11
-  INSTR_TICK(8,  { gb->cpu.target = (gb->cpu.read_value << 8) | gb->cpu.write_value; }); // T12
-  INSTR_TICK(9,  { gb->cpu.reg.sp--;                                                 }); // T13
-  INSTR_TICK(10, { gb->cpu.addr = gb->cpu.reg.sp;                                    }); // T14
-  INSTR_TICK(11, { gb->cpu.write_value = (gb->cpu.reg.pc >> 8) & 0xFF;               }); // T15
-  INSTR_TICK(12, { GB_TRY(memory_write(gb));                                         }); // T16
-  INSTR_TICK(13, { gb->cpu.reg.sp--;                                                 }); // T17
-  INSTR_TICK(14, { gb->cpu.addr = gb->cpu.reg.sp;                                    }); // T18
-  INSTR_TICK(15, { gb->cpu.write_value = gb->cpu.reg.pc & 0xFF;                      }); // T19
-  INSTR_TICK(16, { GB_TRY(memory_write(gb));                                         }); // T20
-  INSTR_TICK(17, {                                                                   }); // T21
-  INSTR_TICK(18, {                                                                   }); // T22
-  INSTR_TICK(19, { gb->cpu.reg.pc = gb->cpu.target;                                  }); // T23
-  INSTR_TICK(20, { return check_interrupts(gb);                                      }); // T24/12
+  INSTR_TICK(0,  { gb->cpu.addr = gb->cpu.reg.pc;                                            }); // T4
+  INSTR_TICK(1,  { gb->cpu.reg.pc++;                                                         }); // T5
+  INSTR_TICK(2,  { GB_TRY(memory_read(gb));                                                  }); // T6
+  INSTR_TICK(3,  { gb->cpu.write_value = gb->cpu.read_value;                                 }); // T7
+  INSTR_TICK(4,  { gb->cpu.addr = gb->cpu.reg.pc;                                            }); // T8
+  INSTR_TICK(5,  { gb->cpu.reg.pc++;                                                         }); // T9
+  INSTR_TICK(6,  { GB_TRY(memory_read(gb));                                                  }); // T10
+  INSTR_TICK(7,  { if (!cnd) { gb->cpu.phase = 19; }                                         }); // T11
+  INSTR_TICK(8,  { gb->cpu.target = (gb->cpu.read_value << 8) | gb->cpu.write_value;         }); // T12
+  INSTR_TICK(9,  { gb->cpu.reg.sp--;                                                         }); // T13
+  INSTR_TICK(10, { gb->cpu.addr = gb->cpu.reg.sp;                                            }); // T14
+  INSTR_TICK(11, { gb->cpu.write_value = (gb->cpu.reg.pc >> 8) & 0xFF;                       }); // T15
+  INSTR_TICK(12, { GB_TRY(memory_write(gb));                                                 }); // T16
+  INSTR_TICK(13, { gb->cpu.reg.sp--;                                                         }); // T17
+  INSTR_TICK(14, { gb->cpu.addr = gb->cpu.reg.sp;                                            }); // T18
+  INSTR_TICK(15, { gb->cpu.write_value = gb->cpu.reg.pc & 0xFF;                              }); // T19
+  INSTR_TICK(16, { GB_TRY(memory_write(gb));                                                 }); // T20
+  INSTR_TICK(17, {                                                                           }); // T21
+  INSTR_TICK(18, {                                                                           }); // T22
+  INSTR_TICK(19, { gb->cpu.reg.pc = gb->cpu.target;                                          }); // T23
+  INSTR_TICK(20, { return check_interrupts(gb);                                              }); // T24/12
 INSTR_END
 
 INSTR_BEGIN(ret_a16)
-  INSTR_TICK(0,  { gb->cpu.addr = gb->cpu.reg.sp;                                    }); // T4
-  INSTR_TICK(1,  { gb->cpu.reg.sp++;                                                 }); // T5
-  INSTR_TICK(2,  { GB_TRY(memory_read(gb));                                          }); // T6
-  INSTR_TICK(3,  { gb->cpu.write_value = gb->cpu.read_value;                         }); // T7
-  INSTR_TICK(4,  { gb->cpu.addr = gb->cpu.reg.sp;                                    }); // T8
-  INSTR_TICK(5,  { gb->cpu.reg.sp++;                                                 }); // T9
-  INSTR_TICK(6,  { GB_TRY(memory_read(gb));                                          }); // T10
-  INSTR_TICK(7,  { gb->cpu.reg.pc = (gb->cpu.read_value << 8) | gb->cpu.write_value; }); // T11
-  INSTR_TICK(8,  {                                                                   }); // T12
-  INSTR_TICK(9,  {                                                                   }); // T13
-  INSTR_TICK(10, {                                                                   }); // T14
-  INSTR_TICK(11, {                                                                   }); // T15
-  INSTR_TICK(12, { return check_interrupts(gb);                                      }); // T16
+  INSTR_TICK(0,  {                                                                           }); // T4
+  INSTR_TICK(1,  {                                                                           }); // T5
+  INSTR_TICK(2,  {                                                                           }); // T6
+  INSTR_TICK(3,  {                                                                           }); // T7
+  INSTR_TICK(4,  { gb->cpu.addr = gb->cpu.reg.sp;                                            }); // T8
+  INSTR_TICK(5,  { gb->cpu.reg.sp++;                                                         }); // T9
+  INSTR_TICK(6,  { GB_TRY(memory_read(gb));                                                  }); // T10
+  INSTR_TICK(7,  { gb->cpu.write_value = gb->cpu.read_value;                                 }); // T11
+  INSTR_TICK(8,  { gb->cpu.addr = gb->cpu.reg.sp;                                            }); // T12
+  INSTR_TICK(9,  { gb->cpu.reg.sp++;                                                         }); // T13
+  INSTR_TICK(10, { GB_TRY(memory_read(gb));                                                  }); // T14
+  INSTR_TICK(11, { gb->cpu.reg.pc = (gb->cpu.read_value << 8) | gb->cpu.write_value;         }); // T15
+  INSTR_TICK(12, { return check_interrupts(gb);                                              }); // T16
 INSTR_END
 
 INSTR_BEGIN(reti_a16)
-  INSTR_TICK(0,  { gb->cpu.addr = gb->cpu.reg.sp;                                    }); // T4
-  INSTR_TICK(1,  { gb->cpu.reg.sp++;                                                 }); // T5
-  INSTR_TICK(2,  { GB_TRY(memory_read(gb));                                          }); // T6
-  INSTR_TICK(3,  { gb->cpu.write_value = gb->cpu.read_value;                         }); // T7
-  INSTR_TICK(4,  { gb->cpu.addr = gb->cpu.reg.sp;                                    }); // T8
-  INSTR_TICK(5,  { gb->cpu.reg.sp++;                                                 }); // T9
-  INSTR_TICK(6,  { GB_TRY(memory_read(gb));                                          }); // T10
-  INSTR_TICK(7,  { gb->cpu.reg.pc = (gb->cpu.read_value << 8) | gb->cpu.write_value; }); // T11
-  INSTR_TICK(8,  { gb->cpu.ime_pending_delay = 2;                                    }); // T12
-  INSTR_TICK(9,  {                                                                   }); // T13
-  INSTR_TICK(10, {                                                                   }); // T14
-  INSTR_TICK(11, {                                                                   }); // T15
-  INSTR_TICK(12, { return check_interrupts(gb);                                      }); // T16
+  INSTR_TICK(0,  {                                                                           }); // T4
+  INSTR_TICK(1,  {                                                                           }); // T5
+  INSTR_TICK(2,  {                                                                           }); // T6
+  INSTR_TICK(3,  { gb->cpu.addr = gb->cpu.reg.sp;                                            }); // T7
+  INSTR_TICK(4,  { gb->cpu.reg.sp++;                                                         }); // T8
+  INSTR_TICK(5,  { GB_TRY(memory_read(gb));                                                  }); // T9
+  INSTR_TICK(6,  { gb->cpu.write_value = gb->cpu.read_value;                                 }); // T10
+  INSTR_TICK(7,  { gb->cpu.addr = gb->cpu.reg.sp;                                            }); // T11
+  INSTR_TICK(8,  { gb->cpu.reg.sp++;                                                         }); // T12
+  INSTR_TICK(9,  { GB_TRY(memory_read(gb));                                                  }); // T13
+  INSTR_TICK(10, { gb->cpu.reg.pc = (gb->cpu.read_value << 8) | gb->cpu.write_value;         }); // T14
+  INSTR_TICK(11, { gb->cpu.ime_pending_delay = 2;                                            }); // T15
+  INSTR_TICK(12, { return check_interrupts(gb);                                              }); // T16
 INSTR_END
 
 INSTR_BEGIN_ONE_PARAM(ret_cnd_a16, bool, cnd)
-  INSTR_TICK(0,  {                                                                   }); // T4
-  INSTR_TICK(1,  {                                                                   }); // T5
-  INSTR_TICK(2,  {                                                                   }); // T6
-  INSTR_TICK(3,  { if (!cnd) { gb->cpu.phase = 15; }                                 }); // T7
-  INSTR_TICK(4,  { gb->cpu.addr = gb->cpu.reg.sp;                                    }); // T8
-  INSTR_TICK(5,  { gb->cpu.reg.sp++;                                                 }); // T9
-  INSTR_TICK(6,  { GB_TRY(memory_read(gb));                                          }); // T10
-  INSTR_TICK(7,  { gb->cpu.write_value = gb->cpu.read_value;                         }); // T11
-  INSTR_TICK(8,  { gb->cpu.addr = gb->cpu.reg.sp;                                    }); // T12
-  INSTR_TICK(9,  { gb->cpu.reg.sp++;                                                 }); // T13
-  INSTR_TICK(10, { GB_TRY(memory_read(gb));                                          }); // T14
-  INSTR_TICK(11, { gb->cpu.reg.pc = (gb->cpu.read_value << 8) | gb->cpu.write_value; }); // T15
-  INSTR_TICK(12, {                                                                   }); // T16
-  INSTR_TICK(13, {                                                                   }); // T17
-  INSTR_TICK(14, {                                                                   }); // T18
-  INSTR_TICK(15, {                                                                   }); // T19
-  INSTR_TICK(16, { return check_interrupts(gb);                                      }); // T20/8
+  INSTR_TICK(0,  {                                                                           }); // T4
+  INSTR_TICK(1,  {                                                                           }); // T5
+  INSTR_TICK(2,  {                                                                           }); // T6
+  INSTR_TICK(3,  { if (!cnd) { gb->cpu.phase = 15; }                                         }); // T7
+  INSTR_TICK(4,  { gb->cpu.addr = gb->cpu.reg.sp;                                            }); // T8
+  INSTR_TICK(5,  { gb->cpu.reg.sp++;                                                         }); // T9
+  INSTR_TICK(6,  { GB_TRY(memory_read(gb));                                                  }); // T10
+  INSTR_TICK(7,  { gb->cpu.write_value = gb->cpu.read_value;                                 }); // T11
+  INSTR_TICK(8,  { gb->cpu.addr = gb->cpu.reg.sp;                                            }); // T12
+  INSTR_TICK(9,  { gb->cpu.reg.sp++;                                                         }); // T13
+  INSTR_TICK(10, { GB_TRY(memory_read(gb));                                                  }); // T14
+  INSTR_TICK(11, { gb->cpu.reg.pc = (gb->cpu.read_value << 8) | gb->cpu.write_value;         }); // T15
+  INSTR_TICK(12, {                                                                           }); // T16
+  INSTR_TICK(13, {                                                                           }); // T17
+  INSTR_TICK(14, {                                                                           }); // T18
+  INSTR_TICK(15, {                                                                           }); // T19
+  INSTR_TICK(16, { return check_interrupts(gb);                                              }); // T20/8
 INSTR_END
 
 INSTR_BEGIN_ONE_PARAM(rst_addr, uint16_t, addr)
-  INSTR_TICK(0,  { gb->cpu.reg.sp--;                                   }); // T4
-  INSTR_TICK(1,  { gb->cpu.addr = gb->cpu.reg.sp;                      }); // T5
-  INSTR_TICK(2,  { gb->cpu.write_value = (gb->cpu.reg.pc >> 8) & 0xFF; }); // T6
-  INSTR_TICK(3,  { GB_TRY(memory_write(gb));                           }); // T7
-  INSTR_TICK(4,  { gb->cpu.reg.sp--;                                   }); // T8
-  INSTR_TICK(5,  { gb->cpu.addr = gb->cpu.reg.sp;                      }); // T9
-  INSTR_TICK(6,  { gb->cpu.write_value = gb->cpu.reg.pc & 0xFF;        }); // T10
-  INSTR_TICK(7,  { GB_TRY(memory_write(gb));                           }); // T11
-  INSTR_TICK(8,  { gb->cpu.reg.pc = addr;                              }); // T12
-  INSTR_TICK(9,  {                                                     }); // T13
-  INSTR_TICK(10, {                                                     }); // T14
-  INSTR_TICK(11, {                                                     }); // T15
-  INSTR_TICK(12, { return check_interrupts(gb);                        }); // T16
+  INSTR_TICK(0,  {                                                                           }); // T4
+  INSTR_TICK(1,  {                                                                           }); // T5
+  INSTR_TICK(2,  {                                                                           }); // T6
+  INSTR_TICK(3,  { gb->cpu.reg.sp--;                                                         }); // T7
+  INSTR_TICK(4,  { gb->cpu.addr = gb->cpu.reg.sp;                                            }); // T8
+  INSTR_TICK(5,  { gb->cpu.write_value = (gb->cpu.reg.pc >> 8) & 0xFF;                       }); // T9
+  INSTR_TICK(6,  { GB_TRY(memory_write(gb));                                                 }); // T10
+  INSTR_TICK(7,  { gb->cpu.reg.sp--;                                                         }); // T11
+  INSTR_TICK(8,  { gb->cpu.addr = gb->cpu.reg.sp;                                            }); // T12
+  INSTR_TICK(9,  { gb->cpu.write_value = gb->cpu.reg.pc & 0xFF;                              }); // T13
+  INSTR_TICK(10, { GB_TRY(memory_write(gb));                                                 }); // T14
+  INSTR_TICK(11, { gb->cpu.reg.pc = addr;                                                    }); // T15
+  INSTR_TICK(12, { return check_interrupts(gb);                                              }); // T16
 INSTR_END
 
 INSTR_BEGIN(rlca)
@@ -1054,7 +1054,7 @@ INSTR_BEGIN(rlca)
                   gb->cpu.reg.half_carry = 0;
                   gb->cpu.reg.carry = (gb->cpu.reg.a & 0x80) != 0;
                   gb->cpu.reg.a = (gb->cpu.reg.a << 1) | gb->cpu.reg.carry;
-                  return check_interrupts(gb); }); // T4
+                  return check_interrupts(gb);                                               }); // T4
 INSTR_END
 
 INSTR_BEGIN(rla)
@@ -1064,21 +1064,21 @@ INSTR_BEGIN(rla)
                   const uint8_t temp = gb->cpu.reg.carry;
                   gb->cpu.reg.carry = (gb->cpu.reg.a & 0x80) != 0;
                   gb->cpu.reg.a = (gb->cpu.reg.a << 1) | temp;
-                  return check_interrupts(gb); }); // T4
+                  return check_interrupts(gb);                                               }); // T4
 INSTR_END
 
 INSTR_BEGIN(cpl)
   INSTR_TICK(0, { gb->cpu.reg.a = ~gb->cpu.reg.a;
                   gb->cpu.reg.subtract = 1;
                   gb->cpu.reg.half_carry = 1;
-                  return check_interrupts(gb); }); // T4
+                  return check_interrupts(gb);                                               }); // T4
 INSTR_END
 
 INSTR_BEGIN(ccf)
   INSTR_TICK(0, { gb->cpu.reg.carry = !gb->cpu.reg.carry;
                   gb->cpu.reg.subtract = 0;
                   gb->cpu.reg.half_carry = 0;
-                  return check_interrupts(gb); }); // T4
+                  return check_interrupts(gb);                                               }); // T4
 INSTR_END
 
 INSTR_BEGIN(rrca)
@@ -1088,7 +1088,7 @@ INSTR_BEGIN(rrca)
                   gb->cpu.reg.zero = 0;
                   gb->cpu.reg.subtract = 0;
                   gb->cpu.reg.half_carry = 0;
-                  return check_interrupts(gb); }); // T4
+                  return check_interrupts(gb);                                               }); // T4
 INSTR_END
 
 INSTR_BEGIN(rra)
@@ -1099,7 +1099,7 @@ INSTR_BEGIN(rra)
                   gb->cpu.reg.zero = 0;
                   gb->cpu.reg.subtract = 0;
                   gb->cpu.reg.half_carry = 0;
-                  return check_interrupts(gb); }); // T4
+                  return check_interrupts(gb);                                               }); // T4
 INSTR_END
 
 INSTR_BEGIN(daa)
@@ -1122,36 +1122,36 @@ INSTR_BEGIN(daa)
                     gb->cpu.reg.half_carry = 0;
                   }
                   gb->cpu.reg.zero = (gb->cpu.reg.a == 0);
-                  return check_interrupts(gb); }); // T4
+                  return check_interrupts(gb);                                               }); // T4
 INSTR_END
 
 INSTR_BEGIN(scf)
   INSTR_TICK(0, { gb->cpu.reg.carry = 1;
                   gb->cpu.reg.subtract = 0;
                   gb->cpu.reg.half_carry = 0;
-                  return check_interrupts(gb); }); // T4
+                  return check_interrupts(gb);                                               }); // T4
 INSTR_END
 
 INSTR_BEGIN(halt)
   INSTR_TICK(0, { gb->cpu.halted = true;
-                  return check_interrupts(gb); }); // T4
+                  return check_interrupts(gb);                                               }); // T4
 INSTR_END
 
 INSTR_BEGIN(stop)
   INSTR_TICK(0, { // TODO: implement
                   gb->cpu.reg.pc++;
                   gb->cpu.stopped = true;
-                  return check_interrupts(gb); }); // T4
+                  return check_interrupts(gb);                                               }); // T4
 INSTR_END
 
 INSTR_BEGIN(prefix)
-  INSTR_TICK(0, { }); // T4
-  INSTR_TICK(1, { gb->cpu.addr = gb->cpu.reg.pc; }); // T4
-  INSTR_TICK(2, { gb->cpu.reg.pc++;              }); // T5
-  INSTR_TICK(3, { GB_TRY(memory_read(gb));       }); // T6
+  INSTR_TICK(0, {                                                                            }); // T4
+  INSTR_TICK(1, { gb->cpu.addr = gb->cpu.reg.pc;                                             }); // T5
+  INSTR_TICK(2, { gb->cpu.reg.pc++;                                                          }); // T6
+  INSTR_TICK(3, { GB_TRY(memory_read(gb));                                                   }); // T7
   INSTR_TICK(4, { gb->cpu.phase = 0;
                   gb->cpu.instr = cb_instr_set[gb->cpu.read_value];
-                  return gb->cpu.instr(gb);             }); // T7
+                  return gb->cpu.instr(gb);                                                  }); // T8
 INSTR_END
 
 INSTR_BEGIN_ONE_PARAM(rlc_r8, uint8_t *, r8)
@@ -1160,23 +1160,23 @@ INSTR_BEGIN_ONE_PARAM(rlc_r8, uint8_t *, r8)
                   gb->cpu.reg.zero = ((*r8) == 0);
                   gb->cpu.reg.half_carry = 0;
                   gb->cpu.reg.subtract = 0; 
-                  return check_interrupts(gb); }); // T8
+                  return check_interrupts(gb);                                               }); // T8
 INSTR_END
 
 INSTR_BEGIN_ONE_PARAM(rlc_addr, uint16_t, addr)
-  INSTR_TICK(0, {                              }); // T16
-  INSTR_TICK(1, {                              }); // T17
-  INSTR_TICK(2, {                              }); // T18
-  INSTR_TICK(3, { gb->cpu.addr = addr;         }); // T12
-  INSTR_TICK(4, { GB_TRY(memory_read(gb));     }); // T13
+  INSTR_TICK(0, {                                                                            }); // T8
+  INSTR_TICK(1, {                                                                            }); // T9
+  INSTR_TICK(2, {                                                                            }); // T10
+  INSTR_TICK(3, { gb->cpu.addr = addr;                                                       }); // T11
+  INSTR_TICK(4, { GB_TRY(memory_read(gb));                                                   }); // T12
   INSTR_TICK(5, { gb->cpu.reg.carry = (gb->cpu.read_value & 0x80) != 0;
                   gb->cpu.write_value = (gb->cpu.read_value << 1) | gb->cpu.reg.carry;
                   gb->cpu.reg.zero = (gb->cpu.write_value == 0);
                   gb->cpu.reg.half_carry = 0;
-                  gb->cpu.reg.subtract = 0;    }); // T14
-  INSTR_TICK(6, { gb->cpu.addr = addr;         }); // T12
-  INSTR_TICK(7, { GB_TRY(memory_write(gb));    }); // T15
-  INSTR_TICK(8, { return check_interrupts(gb); }); // T20
+                  gb->cpu.reg.subtract = 0;                                                  }); // T13
+  INSTR_TICK(6, { gb->cpu.addr = addr;                                                       }); // T14
+  INSTR_TICK(7, { GB_TRY(memory_write(gb));                                                  }); // T15
+  INSTR_TICK(8, { return check_interrupts(gb);                                               }); // T16
 INSTR_END
 
 INSTR_BEGIN_ONE_PARAM(rl_r8, uint8_t *, r8)
@@ -1186,24 +1186,24 @@ INSTR_BEGIN_ONE_PARAM(rl_r8, uint8_t *, r8)
                   gb->cpu.reg.zero = ((*r8) == 0);
                   gb->cpu.reg.half_carry = 0;
                   gb->cpu.reg.subtract = 0;
-                  return check_interrupts(gb); }); // T12
+                  return check_interrupts(gb);                                               }); // T8
 INSTR_END
 
 INSTR_BEGIN_ONE_PARAM(rl_addr, uint16_t, addr)
-  INSTR_TICK(0, {                              }); // T16
-  INSTR_TICK(1, {                              }); // T17
-  INSTR_TICK(2, {                              }); // T18
-  INSTR_TICK(3, { gb->cpu.addr = addr;         }); // T12
-  INSTR_TICK(4, { GB_TRY(memory_read(gb));     }); // T13
+  INSTR_TICK(0, {                                                                            }); // T8
+  INSTR_TICK(1, {                                                                            }); // T9
+  INSTR_TICK(2, {                                                                            }); // T10
+  INSTR_TICK(3, { gb->cpu.addr = addr;                                                       }); // T11
+  INSTR_TICK(4, { GB_TRY(memory_read(gb));                                                   }); // T12
   INSTR_TICK(5, { const uint8_t carry = gb->cpu.reg.carry;
                   gb->cpu.reg.carry = (gb->cpu.read_value & 0x80) != 0;
                   gb->cpu.write_value = (gb->cpu.read_value << 1) | carry;
                   gb->cpu.reg.zero = (gb->cpu.write_value == 0);
                   gb->cpu.reg.half_carry = 0;
-                  gb->cpu.reg.subtract = 0;    }); // T14
-  INSTR_TICK(6, { gb->cpu.addr = addr;         }); // T12
-  INSTR_TICK(7, { GB_TRY(memory_write(gb));    }); // T15
-  INSTR_TICK(8, { return check_interrupts(gb); }); // T20
+                  gb->cpu.reg.subtract = 0;                                                  }); // T13
+  INSTR_TICK(6, { gb->cpu.addr = addr;                                                       }); // T14
+  INSTR_TICK(7, { GB_TRY(memory_write(gb));                                                  }); // T15
+  INSTR_TICK(8, { return check_interrupts(gb);                                               }); // T16
 INSTR_END
 
 INSTR_BEGIN_ONE_PARAM(rrc_r8, uint8_t *, r8)
@@ -1212,23 +1212,23 @@ INSTR_BEGIN_ONE_PARAM(rrc_r8, uint8_t *, r8)
                   gb->cpu.reg.zero = ((*r8) == 0);
                   gb->cpu.reg.half_carry = 0;
                   gb->cpu.reg.subtract = 0;
-                  return check_interrupts(gb); }); // T12
+                  return check_interrupts(gb);                                               }); // T8
 INSTR_END
 
 INSTR_BEGIN_ONE_PARAM(rrc_addr, uint16_t, addr)
-  INSTR_TICK(0, {                              }); // T16
-  INSTR_TICK(1, {                              }); // T17
-  INSTR_TICK(2, {                              }); // T18
-  INSTR_TICK(3, { gb->cpu.addr = addr;         }); // T12
-  INSTR_TICK(4, { GB_TRY(memory_read(gb));     }); // T13
+  INSTR_TICK(0, {                                                                            }); // T8
+  INSTR_TICK(1, {                                                                            }); // T9
+  INSTR_TICK(2, {                                                                            }); // T10
+  INSTR_TICK(3, { gb->cpu.addr = addr;                                                       }); // T11
+  INSTR_TICK(4, { GB_TRY(memory_read(gb));                                                   }); // T12
   INSTR_TICK(5, { gb->cpu.reg.carry = (gb->cpu.read_value & 0x01) != 0;
                   gb->cpu.write_value = (gb->cpu.read_value >> 1) | (gb->cpu.reg.carry << 7);
                   gb->cpu.reg.zero = (gb->cpu.write_value == 0);
                   gb->cpu.reg.half_carry = 0;
-                  gb->cpu.reg.subtract = 0;    }); // T14
-  INSTR_TICK(6, { gb->cpu.addr = addr;         }); // T12
-  INSTR_TICK(7, { GB_TRY(memory_write(gb));    }); // T15
-  INSTR_TICK(8, { return check_interrupts(gb); }); // T20
+                  gb->cpu.reg.subtract = 0;                                                  }); // T13
+  INSTR_TICK(6, { gb->cpu.addr = addr;                                                       }); // T14
+  INSTR_TICK(7, { GB_TRY(memory_write(gb));                                                  }); // T15
+  INSTR_TICK(8, { return check_interrupts(gb);                                               }); // T16
 INSTR_END
 
 INSTR_BEGIN_ONE_PARAM(rr_r8, uint8_t *, r8)
@@ -1238,24 +1238,24 @@ INSTR_BEGIN_ONE_PARAM(rr_r8, uint8_t *, r8)
                   gb->cpu.reg.zero = ((*r8) == 0);
                   gb->cpu.reg.half_carry = 0;
                   gb->cpu.reg.subtract = 0;
-                  return check_interrupts(gb); }); // T12
+                  return check_interrupts(gb);                                               }); // T8
 INSTR_END
 
 INSTR_BEGIN_ONE_PARAM(rr_addr, uint16_t, addr)
-  INSTR_TICK(0, {                              }); // T16
-  INSTR_TICK(1, {                              }); // T17
-  INSTR_TICK(2, {                              }); // T18
-  INSTR_TICK(3, { gb->cpu.addr = addr;         }); // T12
-  INSTR_TICK(4, { GB_TRY(memory_read(gb));     }); // T13
+  INSTR_TICK(0, {                                                                            }); // T8
+  INSTR_TICK(1, {                                                                            }); // T9
+  INSTR_TICK(2, {                                                                            }); // T10
+  INSTR_TICK(3, { gb->cpu.addr = addr;                                                       }); // T11
+  INSTR_TICK(4, { GB_TRY(memory_read(gb));                                                   }); // T12
   INSTR_TICK(5, { const uint8_t carry = gb->cpu.reg.carry;
                   gb->cpu.reg.carry = (gb->cpu.read_value & 0x01) != 0;
                   gb->cpu.write_value = (gb->cpu.read_value >> 1) | (carry << 7);
                   gb->cpu.reg.zero = (gb->cpu.write_value == 0);
                   gb->cpu.reg.half_carry = 0;
-                  gb->cpu.reg.subtract = 0;    }); // T14
-  INSTR_TICK(6, { gb->cpu.addr = addr;         }); // T12
-  INSTR_TICK(7, { GB_TRY(memory_write(gb));    }); // T15
-  INSTR_TICK(8, { return check_interrupts(gb); }); // T20
+                  gb->cpu.reg.subtract = 0;                                                  }); // T13
+  INSTR_TICK(6, { gb->cpu.addr = addr;                                                       }); // T14
+  INSTR_TICK(7, { GB_TRY(memory_write(gb));                                                  }); // T15
+  INSTR_TICK(8, { return check_interrupts(gb);                                               }); // T16
 INSTR_END
 
 INSTR_BEGIN_ONE_PARAM(sla_r8, uint8_t *, r8)
@@ -1264,23 +1264,23 @@ INSTR_BEGIN_ONE_PARAM(sla_r8, uint8_t *, r8)
                   gb->cpu.reg.zero = (*r8 == 0);
                   gb->cpu.reg.half_carry = 0;
                   gb->cpu.reg.subtract = 0;
-                  return check_interrupts(gb); }); // T12
+                  return check_interrupts(gb);                                               }); // T8
 INSTR_END
 
 INSTR_BEGIN_ONE_PARAM(sla_addr, uint16_t, addr)
-  INSTR_TICK(0, {                              }); // T16
-  INSTR_TICK(1, {                              }); // T17
-  INSTR_TICK(2, {                              }); // T18
-  INSTR_TICK(3, { gb->cpu.addr = addr;         }); // T12
-  INSTR_TICK(4, { GB_TRY(memory_read(gb));     }); // T13
+  INSTR_TICK(0, {                                                                            }); // T8
+  INSTR_TICK(1, {                                                                            }); // T9
+  INSTR_TICK(2, {                                                                            }); // T10
+  INSTR_TICK(3, { gb->cpu.addr = addr;                                                       }); // T11
+  INSTR_TICK(4, { GB_TRY(memory_read(gb));                                                   }); // T12
   INSTR_TICK(5, { gb->cpu.reg.carry = (gb->cpu.read_value & 0x80) != 0;
                   gb->cpu.write_value = gb->cpu.read_value << 1;
                   gb->cpu.reg.zero = (gb->cpu.write_value == 0);
                   gb->cpu.reg.half_carry = 0;
-                  gb->cpu.reg.subtract = 0;    }); // T14
-  INSTR_TICK(6, { gb->cpu.addr = addr;         }); // T12
-  INSTR_TICK(7, { GB_TRY(memory_write(gb));    }); // T15
-  INSTR_TICK(8, { return check_interrupts(gb); }); // T20
+                  gb->cpu.reg.subtract = 0;                                                  }); // T13
+  INSTR_TICK(6, { gb->cpu.addr = addr;                                                       }); // T14
+  INSTR_TICK(7, { GB_TRY(memory_write(gb));                                                  }); // T15
+  INSTR_TICK(8, { return check_interrupts(gb);                                               }); // T16
 INSTR_END
 
 INSTR_BEGIN_ONE_PARAM(sra_r8, uint8_t *, r8)
@@ -1289,23 +1289,23 @@ INSTR_BEGIN_ONE_PARAM(sra_r8, uint8_t *, r8)
                   gb->cpu.reg.zero = (*r8 == 0);
                   gb->cpu.reg.half_carry = 0;
                   gb->cpu.reg.subtract = 0;
-                  return check_interrupts(gb); }); // T12
+                  return check_interrupts(gb);                                               }); // T8
 INSTR_END
 
 INSTR_BEGIN_ONE_PARAM(sra_addr, uint16_t, addr)
-  INSTR_TICK(0, {                              }); // T16
-  INSTR_TICK(1, {                              }); // T17
-  INSTR_TICK(2, {                              }); // T18
-  INSTR_TICK(3, { gb->cpu.addr = addr;         }); // T12
-  INSTR_TICK(4, { GB_TRY(memory_read(gb));     }); // T13
+  INSTR_TICK(0, {                                                                            }); // T8
+  INSTR_TICK(1, {                                                                            }); // T9
+  INSTR_TICK(2, {                                                                            }); // T10
+  INSTR_TICK(3, { gb->cpu.addr = addr;                                                       }); // T11
+  INSTR_TICK(4, { GB_TRY(memory_read(gb));                                                   }); // T12
   INSTR_TICK(5, { gb->cpu.reg.carry = (gb->cpu.read_value & 0x01);
                   gb->cpu.write_value = (gb->cpu.read_value >> 1) | (gb->cpu.read_value & 0x80);
                   gb->cpu.reg.zero = (gb->cpu.write_value == 0);
                   gb->cpu.reg.half_carry = 0;
-                  gb->cpu.reg.subtract = 0;    }); // T14
-  INSTR_TICK(6, { gb->cpu.addr = addr;         }); // T12
-  INSTR_TICK(7, { GB_TRY(memory_write(gb));    }); // T15
-  INSTR_TICK(8, { return check_interrupts(gb); }); // T20
+                  gb->cpu.reg.subtract = 0;                                                  }); // T13
+  INSTR_TICK(6, { gb->cpu.addr = addr;                                                       }); // T14
+  INSTR_TICK(7, { GB_TRY(memory_write(gb));                                                  }); // T15
+  INSTR_TICK(8, { return check_interrupts(gb);                                               }); // T16
 INSTR_END
 
 INSTR_BEGIN_ONE_PARAM(swap_r8, uint8_t *, r8)
@@ -1314,23 +1314,23 @@ INSTR_BEGIN_ONE_PARAM(swap_r8, uint8_t *, r8)
                   gb->cpu.reg.carry = 0;
                   gb->cpu.reg.half_carry = 0;
                   gb->cpu.reg.subtract = 0;
-                  return check_interrupts(gb); }); // T12
+                  return check_interrupts(gb);                                               }); // T8
 INSTR_END
 
 INSTR_BEGIN_ONE_PARAM(swap_addr, uint16_t, addr)
-  INSTR_TICK(0, {                              }); // T16
-  INSTR_TICK(1, {                              }); // T17
-  INSTR_TICK(2, {                              }); // T18
-  INSTR_TICK(3, { gb->cpu.addr = addr;         }); // T12
-  INSTR_TICK(4, { GB_TRY(memory_read(gb));     }); // T13
+  INSTR_TICK(0, {                                                                            }); // T8
+  INSTR_TICK(1, {                                                                            }); // T9
+  INSTR_TICK(2, {                                                                            }); // T10
+  INSTR_TICK(3, { gb->cpu.addr = addr;                                                       }); // T11
+  INSTR_TICK(4, { GB_TRY(memory_read(gb));                                                   }); // T12
   INSTR_TICK(5, { gb->cpu.write_value = ((gb->cpu.read_value & 0x0F) << 4) | ((gb->cpu.read_value & 0xF0) >> 4);
                   gb->cpu.reg.zero = (gb->cpu.write_value == 0);
                   gb->cpu.reg.carry = 0;
                   gb->cpu.reg.half_carry = 0;
-                  gb->cpu.reg.subtract = 0;    }); // T14
-  INSTR_TICK(6, { gb->cpu.addr = addr;         }); // T12
-  INSTR_TICK(7, { GB_TRY(memory_write(gb));    }); // T15
-  INSTR_TICK(8, { return check_interrupts(gb); }); // T20
+                  gb->cpu.reg.subtract = 0;                                                  }); // T13
+  INSTR_TICK(6, { gb->cpu.addr = addr;                                                       }); // T14
+  INSTR_TICK(7, { GB_TRY(memory_write(gb));                                                  }); // T15
+  INSTR_TICK(8, { return check_interrupts(gb);                                               }); // T16
 INSTR_END
 
 INSTR_BEGIN_ONE_PARAM(srl_r8, uint8_t *, r8)
@@ -1339,72 +1339,72 @@ INSTR_BEGIN_ONE_PARAM(srl_r8, uint8_t *, r8)
                   gb->cpu.reg.zero = (*r8 == 0);
                   gb->cpu.reg.half_carry = 0;
                   gb->cpu.reg.subtract = 0;
-                  return check_interrupts(gb); }); // T12
+                  return check_interrupts(gb);                                               }); // T8
 INSTR_END
 
 INSTR_BEGIN_ONE_PARAM(srl_addr, uint16_t, addr)
-  INSTR_TICK(0, {                              }); // T16
-  INSTR_TICK(1, {                              }); // T17
-  INSTR_TICK(2, {                              }); // T18
-  INSTR_TICK(3, { gb->cpu.addr = addr;         }); // T12
-  INSTR_TICK(4, { GB_TRY(memory_read(gb));     }); // T13
+  INSTR_TICK(0, {                                                                            }); // T8
+  INSTR_TICK(1, {                                                                            }); // T9
+  INSTR_TICK(2, {                                                                            }); // T10
+  INSTR_TICK(3, { gb->cpu.addr = addr;                                                       }); // T11
+  INSTR_TICK(4, { GB_TRY(memory_read(gb));                                                   }); // T12
   INSTR_TICK(5, { gb->cpu.reg.carry = (gb->cpu.read_value & 0x01) != 0;
                   gb->cpu.write_value = gb->cpu.read_value >> 1;
                   gb->cpu.reg.zero = (gb->cpu.write_value == 0);
                   gb->cpu.reg.half_carry = 0;
-                  gb->cpu.reg.subtract = 0;    }); // T14
-  INSTR_TICK(6, { gb->cpu.addr = addr;         }); // T12
-  INSTR_TICK(7, { GB_TRY(memory_write(gb));    }); // T15
-  INSTR_TICK(8, { return check_interrupts(gb); }); // T20
+                  gb->cpu.reg.subtract = 0;                                                  }); // T13
+  INSTR_TICK(6, { gb->cpu.addr = addr;                                                       }); // T14
+  INSTR_TICK(7, { GB_TRY(memory_write(gb));                                                  }); // T15
+  INSTR_TICK(8, { return check_interrupts(gb);                                               }); // T16
 INSTR_END
 
 INSTR_BEGIN_TWO_PARAMS(bit_r8, uint8_t, bit, uint8_t, r8)
   INSTR_TICK(0, { gb->cpu.reg.zero = !(r8 & (1 << bit));
                   gb->cpu.reg.half_carry = 1;
                   gb->cpu.reg.subtract = 0;
-                  return check_interrupts(gb); }); // T12
+                  return check_interrupts(gb);                                               }); // T8
 INSTR_END
 
 INSTR_BEGIN_TWO_PARAMS(bit_addr, uint8_t, bit, uint16_t, addr)
-  INSTR_TICK(0, {                              }); // T8
-  INSTR_TICK(1, { gb->cpu.addr = addr;         }); // T9
-  INSTR_TICK(2, { GB_TRY(memory_read(gb));     }); // T10
+  INSTR_TICK(0, {                                                                            }); // T8
+  INSTR_TICK(1, { gb->cpu.addr = addr;                                                       }); // T9
+  INSTR_TICK(2, { GB_TRY(memory_read(gb));                                                   }); // T10
   INSTR_TICK(3, { gb->cpu.reg.zero = !(gb->cpu.read_value & (1 << bit));
                   gb->cpu.reg.half_carry = 1;
-                  gb->cpu.reg.subtract = 0;    }); // T11
-  INSTR_TICK(4, { return check_interrupts(gb); }); // T12
+                  gb->cpu.reg.subtract = 0;                                                  }); // T11
+  INSTR_TICK(4, { return check_interrupts(gb);                                               }); // T12
 INSTR_END
 
 INSTR_BEGIN_TWO_PARAMS(res_r8, uint8_t, bit, uint8_t *, r8)
-  INSTR_TICK(0, { *r8 &= ~(1 << bit); return check_interrupts(gb); }); // T12
+  INSTR_TICK(0, { *r8 &= ~(1 << bit); return check_interrupts(gb);                           }); // T8
 INSTR_END
 
 INSTR_BEGIN_TWO_PARAMS(res_addr, uint8_t, bit, uint16_t, addr)
-  INSTR_TICK(0, {                                                         }); // T16
-  INSTR_TICK(1, {                                                         }); // T17
-  INSTR_TICK(2, {                                                         }); // T18
-  INSTR_TICK(3, { gb->cpu.addr = addr;                                    }); // T12
-  INSTR_TICK(4, { GB_TRY(memory_read(gb));                                }); // T13
-  INSTR_TICK(5, { gb->cpu.write_value = gb->cpu.read_value & ~(1 << bit); }); // T14
-  INSTR_TICK(6, { gb->cpu.addr = addr;                                    }); // T12
-  INSTR_TICK(7, { GB_TRY(memory_write(gb));                               }); // T15
-  INSTR_TICK(8, { return check_interrupts(gb);                            }); // T20
+  INSTR_TICK(0, {                                                                            }); // T8
+  INSTR_TICK(1, {                                                                            }); // T9
+  INSTR_TICK(2, {                                                                            }); // T10
+  INSTR_TICK(3, { gb->cpu.addr = addr;                                                       }); // T11
+  INSTR_TICK(4, { GB_TRY(memory_read(gb));                                                   }); // T12
+  INSTR_TICK(5, { gb->cpu.write_value = gb->cpu.read_value & ~(1 << bit);                    }); // T13
+  INSTR_TICK(6, { gb->cpu.addr = addr;                                                       }); // T14
+  INSTR_TICK(7, { GB_TRY(memory_write(gb));                                                  }); // T15
+  INSTR_TICK(8, { return check_interrupts(gb);                                               }); // T16
 INSTR_END
 
 INSTR_BEGIN_TWO_PARAMS(set_r8, uint8_t, bit, uint8_t *, r8)
-  INSTR_TICK(0, { *r8 |= (1 << bit); return check_interrupts(gb); }); // T8
+  INSTR_TICK(0, { *r8 |= (1 << bit); return check_interrupts(gb);                            }); // T8
 INSTR_END
 
 INSTR_BEGIN_TWO_PARAMS(set_addr, uint8_t, bit, uint16_t, addr)
-  INSTR_TICK(0, {                                                        }); // T8
-  INSTR_TICK(1, {                                                        }); // T9
-  INSTR_TICK(2, {                                                        }); // T10
-  INSTR_TICK(3, { gb->cpu.addr = addr;                                   }); // T12
-  INSTR_TICK(4, { GB_TRY(memory_read(gb));                               }); // T13
-  INSTR_TICK(5, { gb->cpu.write_value = gb->cpu.read_value | (1 << bit); }); // T14
-  INSTR_TICK(6, { gb->cpu.addr = addr;                                   }); // T11
-  INSTR_TICK(7, { GB_TRY(memory_write(gb));                              }); // T15
-  INSTR_TICK(8, { return check_interrupts(gb);                           }); // T16
+  INSTR_TICK(0, {                                                                            }); // T8
+  INSTR_TICK(1, {                                                                            }); // T9
+  INSTR_TICK(2, {                                                                            }); // T10
+  INSTR_TICK(3, { gb->cpu.addr = addr;                                                       }); // T12
+  INSTR_TICK(4, { GB_TRY(memory_read(gb));                                                   }); // T13
+  INSTR_TICK(5, { gb->cpu.write_value = gb->cpu.read_value | (1 << bit);                     }); // T14
+  INSTR_TICK(6, { gb->cpu.addr = addr;                                                       }); // T11
+  INSTR_TICK(7, { GB_TRY(memory_write(gb));                                                  }); // T15
+  INSTR_TICK(8, { return check_interrupts(gb);                                               }); // T16
 INSTR_END
 
 #define MAIN_INSTR_SET(gen) \

@@ -4,9 +4,7 @@
 static GB_result_t reset(GB_emulator_t *gb) {
   if (!gb) { return GB_ERROR_INVALID_EMULATOR; }
 
-  gb->timer.div_cycles = 0;
   gb->timer.div_counter = 0;
-  gb->timer.tima_cycles = 0;
 
   return GB_SUCCESS;
 }
