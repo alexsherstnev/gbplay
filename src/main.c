@@ -60,6 +60,24 @@ uint8_t gamma_correction(uint8_t color, double gamma) {
   return (uint8_t)(255.0 * pow(color / 255.0, 1.0 / gamma));
 }
 
+int save_screenshot(const uint32_t *pixels, int width, int height, const char *filename) {
+  SDL_Surface *surface = SDL_CreateSurfaceFrom(width, height, SDL_PIXELFORMAT_RGBA8888, (void *)pixels, width * sizeof(uint32_t));
+  if (!surface) {
+    LOG_ERROR("Failed to create surface: %s", SDL_GetError());
+    return -1;
+  }
+
+  if (!SDL_SaveBMP(surface, filename)) {
+    LOG_ERROR("Failed to save BMP: %s", SDL_GetError());
+    SDL_DestroySurface(surface);
+    return -1;
+  }
+
+  SDL_DestroySurface(surface);
+  return 0;
+}
+
+
 void handle_input(GB_emulator_t *gb) {
   if (!gb || !gb->memory.io) { return; }
 
@@ -83,6 +101,8 @@ void handle_input(GB_emulator_t *gb) {
       if (keyboard[SDL_SCANCODE_LEFT])   { joy &= ~(1 << 1); }  // Left
       if (keyboard[SDL_SCANCODE_RIGHT])  { joy &= ~(1 << 0); }  // Right
     }
+
+    if (keyboard[SDL_SCANCODE_P]) { save_screenshot(g_framebuffer, GB_SCREEN_WIDTH, GB_SCREEN_HEIGHT, "screenshot.bmp"); }
   }
 
   gb->memory.io[GB_MEMORY_IO_OFFSET(GB_HARDWARE_REGISTER_P1JOYP)] = (p1 & 0xF0) | (joy & 0x0F);

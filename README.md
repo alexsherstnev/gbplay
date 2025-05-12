@@ -59,3 +59,14 @@ Default key bindings:
 
 ## 🖼️ Screenshots
 
+![cpu_instrs](images/cpu_instrs.png)
+![dmg_acid2](images/dmg_acid2.png)
+![fairylake](images/fairylake.png)
+![instr_timing](images/instr_timing.png)
+![legend_of_zelda](images/legend_of_zelda.png)
+![mem_timing_2](images/mem_timing_2.png)
+![mem_timing](images/mem_timing.png)
+![pocket](images/pocket.png)
+![prehistorik](images/prehistorik.png)
+![tetris](images/tetris.png)
+
