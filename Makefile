@@ -24,6 +24,7 @@ SOURCES = \
 	$(SRC_DIR)/gb/ppu.c \
 	$(SRC_DIR)/gb/timer.c \
 	$(SRC_DIR)/gb/gb.c \
+	$(SRC_DIR)/log.c \
 	$(SRC_DIR)/main.c
 
 INCLUDES = \
@@ -33,7 +34,8 @@ INCLUDES = \
 	$(SRC_DIR)/gb/cpu.h \
 	$(SRC_DIR)/gb/ppu.h \
 	$(SRC_DIR)/gb/timer.h \
-	$(SRC_DIR)/gb/gb.h
+	$(SRC_DIR)/gb/gb.h \
+	$(SRC_DIR)/log.h
 
 OBJ_NAMES = $(SOURCES:.c=.o)
 OBJ = $(patsubst $(SRC_DIR)/%,$(OBJ_DIR)/%,$(OBJ_NAMES))

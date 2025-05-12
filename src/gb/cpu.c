@@ -44,7 +44,7 @@ static GB_result_t memory_read(GB_emulator_t *gb) {
 
   // Handle ROM 0
   if (gb->cpu.addr < 0x4000) {
-    if (!gb->memory.rom_0) { return GB_ERROR_INVALID_MEMORY_ACCESS; }
+    if (!gb->memory.rom_0) { GB_ERROR(gb, GB_ERROR_INVALID_MEMORY_ACCESS, "Invalid access to ROM 0."); return GB_ERROR_INVALID_MEMORY_ACCESS; }
     gb->cpu.read_value = gb->memory.rom_0[gb->cpu.addr];
     return GB_SUCCESS;
   }
@@ -52,7 +52,7 @@ static GB_result_t memory_read(GB_emulator_t *gb) {
   // Handle ROM switchable banks
   if (gb->cpu.addr < 0x8000) {
     if (gb->memory.mbc.rom_bank == 0 ||
-        !gb->memory.rom_x[gb->memory.mbc.rom_bank - 1]) { return GB_ERROR_INVALID_MEMORY_ACCESS; }
+        !gb->memory.rom_x[gb->memory.mbc.rom_bank - 1]) { GB_ERROR(gb, GB_ERROR_INVALID_MEMORY_ACCESS, "Invalid access to ROM %d", gb->memory.mbc.rom_bank); return GB_ERROR_INVALID_MEMORY_ACCESS; }
     gb->cpu.read_value = gb->memory.rom_x[gb->memory.mbc.rom_bank - 1][gb->cpu.addr - 0x4000];
     return GB_SUCCESS;
   }
@@ -69,7 +69,7 @@ static GB_result_t memory_read(GB_emulator_t *gb) {
   // Handle external RAM
   if (gb->cpu.addr < 0xC000) {
     if (!gb->memory.mbc.ram_enabled ||
-        !gb->memory.external_ram[gb->memory.mbc.ram_bank]) { return GB_ERROR_INVALID_MEMORY_ACCESS; }
+        !gb->memory.external_ram[gb->memory.mbc.ram_bank]) { GB_ERROR(gb, GB_ERROR_INVALID_MEMORY_ACCESS, "Invalid access to external RAM"); return GB_ERROR_INVALID_MEMORY_ACCESS; }
     gb->cpu.read_value = gb->memory.external_ram[gb->memory.mbc.ram_bank][gb->cpu.addr - 0xA000];
     return GB_SUCCESS;
   }
@@ -104,9 +104,52 @@ static GB_result_t memory_read(GB_emulator_t *gb) {
   // Handle I/O registers
   if (gb->cpu.addr < 0xFF80) {
     switch (gb->cpu.addr) {
-      case GB_HARDWARE_REGISTER_KEY1: gb->cpu.read_value = 0xFF; break;
-//     case GB_HARDWARE_REGISTER_LY:   gb->cpu.read_value = 0x90; break;
-      default:                        gb->cpu.read_value = gb->memory.io[GB_MEMORY_IO_OFFSET(gb->cpu.addr)]; break;
+      case GB_HARDWARE_REGISTER_P1JOYP:
+      case GB_HARDWARE_REGISTER_SB:
+      case GB_HARDWARE_REGISTER_SC:
+      case GB_HARDWARE_REGISTER_DIV:
+      case GB_HARDWARE_REGISTER_TIMA:
+      case GB_HARDWARE_REGISTER_TMA:
+      case GB_HARDWARE_REGISTER_TAC:
+      case GB_HARDWARE_REGISTER_IF:
+      case GB_HARDWARE_REGISTER_NR10:
+      case GB_HARDWARE_REGISTER_NR11:
+      case GB_HARDWARE_REGISTER_NR12:
+      case GB_HARDWARE_REGISTER_NR13:
+      case GB_HARDWARE_REGISTER_NR14:
+      case GB_HARDWARE_REGISTER_NR21:
+      case GB_HARDWARE_REGISTER_NR22:
+      case GB_HARDWARE_REGISTER_NR23:
+      case GB_HARDWARE_REGISTER_NR24:
+      case GB_HARDWARE_REGISTER_NR30:
+      case GB_HARDWARE_REGISTER_NR31:
+      case GB_HARDWARE_REGISTER_NR32:
+      case GB_HARDWARE_REGISTER_NR33:
+      case GB_HARDWARE_REGISTER_NR34:
+      case GB_HARDWARE_REGISTER_NR41:
+      case GB_HARDWARE_REGISTER_NR42:
+      case GB_HARDWARE_REGISTER_NR43:
+      case GB_HARDWARE_REGISTER_NR44:
+      case GB_HARDWARE_REGISTER_NR50:
+      case GB_HARDWARE_REGISTER_NR51:
+      case GB_HARDWARE_REGISTER_NR52:
+      case GB_HARDWARE_REGISTER_LCDC:
+      case GB_HARDWARE_REGISTER_STAT:
+      case GB_HARDWARE_REGISTER_SCY:
+      case GB_HARDWARE_REGISTER_SCX:
+      case GB_HARDWARE_REGISTER_LY:
+      case GB_HARDWARE_REGISTER_LYC:
+      case GB_HARDWARE_REGISTER_DMA:
+      case GB_HARDWARE_REGISTER_BGP:
+      case GB_HARDWARE_REGISTER_OBP0:
+      case GB_HARDWARE_REGISTER_OBP1:
+      case GB_HARDWARE_REGISTER_WY:
+      case GB_HARDWARE_REGISTER_WX:
+        gb->cpu.read_value = gb->memory.io[GB_MEMORY_IO_OFFSET(gb->cpu.addr)];
+        break;
+      default:
+        gb->cpu.read_value = 0xFF;
+        break;
     }
     return GB_SUCCESS;
   }
@@ -123,6 +166,7 @@ static GB_result_t memory_read(GB_emulator_t *gb) {
     return GB_SUCCESS;
   }
 
+  GB_ERROR(gb, GB_ERROR_INVALID_MEMORY_ACCESS, "Invalid memory access");
   return GB_ERROR_INVALID_MEMORY_ACCESS;
 }
 
@@ -166,10 +210,9 @@ static GB_result_t memory_write(GB_emulator_t *gb) {
 
   // Handle external RAM
   if (gb->cpu.addr < 0xC000) {
-    if (!gb->memory.external_ram[0]) { return GB_ERROR_INVALID_MEMORY_ACCESS; }
     if (gb->memory.mbc.ram_enabled) {
       const uint8_t ram_bank = gb->memory.mbc.mode == 1 ? gb->memory.mbc.ram_bank : 0;
-      if (ram_bank >= 16 || !gb->memory.external_ram[ram_bank]) { return GB_ERROR_INVALID_MEMORY_ACCESS; }
+      if (ram_bank >= 16 || !gb->memory.external_ram[ram_bank]) { GB_ERROR(gb, GB_ERROR_INVALID_MEMORY_ACCESS, "Invalid external RAM bank"); return GB_ERROR_INVALID_MEMORY_ACCESS; }
 
       uint8_t *ram_ptr = gb->memory.external_ram[ram_bank];
       if (!ram_ptr) { return GB_ERROR_INVALID_MEMORY_ACCESS; }
@@ -250,6 +293,7 @@ static GB_result_t memory_write(GB_emulator_t *gb) {
     return GB_SUCCESS;
   }
 
+  GB_ERROR(gb, GB_ERROR_INVALID_MEMORY_ACCESS, "Invalid memory write access");
   return GB_ERROR_INVALID_MEMORY_ACCESS;
 }
 

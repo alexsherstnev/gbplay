@@ -43,7 +43,7 @@ GB_result_t GB_memory_init(GB_emulator_t *gb) {
   if (!gb) { return GB_ERROR_INVALID_EMULATOR; }
  
   // Initialize Boot ROM
-  GB_TRY(allocate_memory_block(gb, (void **)&gb->memory.boot_rom, 0xFF, sizeof(uint8_t)));
+  GB_TRY(allocate_memory_block(gb, (void **)&gb->memory.boot_rom, 256, sizeof(uint8_t)));
   memcpy(gb->memory.boot_rom, DMG_BOOT_ROM, sizeof(DMG_BOOT_ROM));
 
   // Initialize VRAM (8KB)
@@ -51,6 +51,9 @@ GB_result_t GB_memory_init(GB_emulator_t *gb) {
 
   // Initialize WRAM (8KB)
   GB_TRY(allocate_memory_block(gb, (void **)&gb->memory.wram, 0x2000, sizeof(uint8_t)));
+  //for (int i = 0; i < 0x2000; ++i) {
+  //  gb->memory.wram[i] = rand() % 0xFF;
+  //}
 
   // Echo RAM is a mirror of WRAM, so no need to allocated separate memory
   gb->memory.echo_ram = gb->memory.wram;
@@ -122,3 +125,4 @@ GB_result_t GB_memory_read_rom_header(GB_emulator_t *gb, GB_rom_header_t *header
 
   return GB_SUCCESS;
 }
+

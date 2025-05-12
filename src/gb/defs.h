@@ -14,6 +14,8 @@
 #error "Unable to detect endianness."
 #endif
 
+#define GB_ERROR_MESSAGE_MAX_LENGTH   (256)
+
 #define GB_CYCLES_PER_FRAME           (70224)   // T-cycles of one full GB frame
 
 #define GB_SCREEN_WIDTH               (160)
@@ -116,7 +118,15 @@ typedef enum {
   GB_RESULT_MAX
 } GB_result_t;
 
+typedef struct {
+  GB_result_t code;
+  char message[GB_ERROR_MESSAGE_MAX_LENGTH];
+  const char *file;
+  uint32_t line;
+} GB_error_t;
+
 #define GB_FAILED(result) ((result) != GB_SUCCESS)
+#define GB_ERROR(gb, code, fmt, ...) GB_emulator_set_error(gb, code, __FILE__, __LINE__, fmt, ##__VA_ARGS__)
 #define GB_TRY(expr) \
   do { \
     GB_result_t result = (expr); \

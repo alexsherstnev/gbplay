@@ -1,4 +1,5 @@
 #include "gb.h"
+#include <stdarg.h>
 
 GB_result_t GB_emulator_init(GB_emulator_t *gb) {
   if (!gb) { return GB_ERROR_INVALID_EMULATOR; }
@@ -191,22 +192,47 @@ GB_result_t GB_emulator_load_rom(GB_emulator_t *gb, const char *path) {
 
   free(rom_data);
 
-  gb->cpu.reg.a = 0x01;
-  gb->cpu.reg.carry = 1;
-  gb->cpu.reg.half_carry = 1;
-  gb->cpu.reg.subtract = 0;
-  gb->cpu.reg.zero = 1;
-  gb->cpu.reg.b = 0x00;
-  gb->cpu.reg.c = 0x13;
-  gb->cpu.reg.d = 0x00;
-  gb->cpu.reg.e = 0xD8;
-  gb->cpu.reg.h = 0x01;
-  gb->cpu.reg.l = 0x4D;
-  gb->cpu.reg.sp = 0xFFFE;
-  gb->cpu.reg.pc = 0x0100;
-  gb->memory.io[0x50] = 0x01;
-  gb->memory.io[0x40] = 0x91;
-  gb->memory.io[0x47] = 0xE4;
+//  gb->cpu.reg.a = 0x01;
+//  gb->cpu.reg.carry = 1;
+//  gb->cpu.reg.half_carry = 1;
+//  gb->cpu.reg.subtract = 0;
+//  gb->cpu.reg.zero = 1;
+//  gb->cpu.reg.b = 0x00;
+//  gb->cpu.reg.c = 0x13;
+//  gb->cpu.reg.d = 0x00;
+//  gb->cpu.reg.e = 0xD8;
+//  gb->cpu.reg.h = 0x01;
+//  gb->cpu.reg.l = 0x4D;
+//  gb->cpu.reg.sp = 0xFFFE;
+//  gb->cpu.reg.pc = 0x0100;
+//  gb->memory.io[0x50] = 0x01;
+//  gb->memory.io[0x40] = 0x91;
+//  gb->memory.io[0x47] = 0xE4;
 
   return GB_SUCCESS;
 }
+
+GB_error_t GB_emulator_get_last_error(GB_emulator_t *gb) {
+  // Copy error
+  const GB_error_t error = gb->last_error;
+
+  // Clear error
+  gb->last_error.code = GB_SUCCESS;
+  gb->last_error.file = NULL;
+  gb->last_error.line = 0;
+
+  return error;
+}
+
+void GB_emulator_set_error(GB_emulator_t *gb, GB_result_t code, const char* file, uint32_t line, const char *fmt, ...) {
+  gb->last_error.code = code;
+  gb->last_error.file = file;
+  gb->last_error.line = line;
+
+  // Format error message
+  va_list args;
+  va_start(args, fmt);
+  vsnprintf(gb->last_error.message, GB_ERROR_MESSAGE_MAX_LENGTH, fmt, args);
+  va_end(args);
+}
+

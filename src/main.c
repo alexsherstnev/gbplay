@@ -1,7 +1,10 @@
+#define SDL_MAIN_USE_CALLBACKS 1
+
 #include <SDL3/SDL.h>
 #include <SDL3/SDL_main.h>
 #include <math.h>
 #include <time.h>
+#include "log.h"
 #include "gb/gb.h"
 
 #define WINDOW_TITLE      ("GBPlay")
@@ -10,12 +13,20 @@
 #define TARGET_FPS        (59.73)
 #define TARGET_FRAME_TIME (1000.0 / TARGET_FPS)
 
-SDL_Window    *g_window   = NULL;
-SDL_Renderer  *g_renderer = NULL;
-SDL_Texture   *g_frame    = NULL;
-GB_emulator_t  g_emulator;
-uint32_t       g_framebuffer[GB_SCREEN_WIDTH * GB_SCREEN_HEIGHT];
-uint32_t       g_gb_lcd_2_rgb_palette[4];
+// Unused helpers
+#if defined(__GNUC__) || defined(__clang__)
+#define UNUSED_PARAM __attribute__((unused))
+#else
+#define UNUSED_PARAM
+#endif
+
+static SDL_Window    *g_window   = NULL;
+static SDL_Renderer  *g_renderer = NULL;
+static SDL_Texture   *g_frame    = NULL;
+static GB_emulator_t  g_emulator;
+static uint32_t       g_framebuffer[GB_SCREEN_WIDTH * GB_SCREEN_HEIGHT];
+static uint32_t       g_gb_lcd_2_rgb_palette[4];
+static double         g_next_frame_time;
 
 double get_current_time_ms() {
   struct timespec ts;
@@ -121,103 +132,100 @@ void init_gb_lcd_2_rgb_palette() {
   }
 }
 
-bool init(int argc, char *argv[]) {
-  // Base SDL initialization
-  if (!SDL_Init(SDL_INIT_VIDEO | SDL_INIT_EVENTS)) { return false; }
+void log_error(GB_error_t error) {
+  LOG_ERROR("%s (%d):%s:%d", error.message, error.code, error.file, error.line);
+}
 
+void print_help() {
+  printf("usage: [rom]\n\n");
+  printf("positional arguments:\n");
+  printf("  rom\t ROM path\n");
+}
+
+SDL_AppResult SDL_AppInit(UNUSED_PARAM void **appstate, int argc, char *argv[]) {
+  SDL_SetAppMetadata(WINDOW_TITLE, "1.0", "gplay");
+  if (!SDL_Init(SDL_INIT_VIDEO | SDL_INIT_EVENTS)) { return SDL_APP_FAILURE; }
+ 
   // Main window
-  g_window = SDL_CreateWindow(WINDOW_TITLE, WINDOW_WIDTH, WINDOW_HEIGHT, SDL_WINDOW_HIGH_PIXEL_DENSITY);
-  if (!g_window) { return false; }
+  g_window = SDL_CreateWindow(WINDOW_TITLE, WINDOW_WIDTH, WINDOW_HEIGHT, SDL_WINDOW_HIGH_PIXEL_DENSITY | SDL_WINDOW_VULKAN);
+  if (!g_window) { return SDL_APP_FAILURE; }
 
   // Default renderer
   g_renderer = SDL_CreateRenderer(g_window, NULL);
-  if (!g_renderer) { return false; }
+  if (!g_renderer) { return SDL_APP_FAILURE; }
 
   // Frame with nearest filtration
   g_frame = SDL_CreateTexture(g_renderer, SDL_PIXELFORMAT_RGBA8888, SDL_TEXTUREACCESS_STREAMING, GB_SCREEN_WIDTH, GB_SCREEN_HEIGHT);
-  if (!g_frame) { return false; }
+  if (!g_frame) { return SDL_APP_FAILURE; }
   SDL_SetTextureScaleMode(g_frame, SDL_SCALEMODE_NEAREST);
 
   // Pallete
   init_gb_lcd_2_rgb_palette();
 
   // Emulator
-  if (GB_FAILED(GB_emulator_init(&g_emulator))) { return false; }
+  if (GB_FAILED(GB_emulator_init(&g_emulator))) {
+    log_error(GB_emulator_get_last_error(&g_emulator));
+    return SDL_APP_FAILURE;
+  }
 
   // Load ROM
   if (argc > 1) {
     if (GB_FAILED(GB_emulator_load_rom(&g_emulator, argv[1]))) {
-      return false;
+      log_error(GB_emulator_get_last_error(&g_emulator));
+      return SDL_APP_FAILURE;
+    }
+  } else {
+    LOG_ERROR("invalid ROM specified.");
+    print_help();
+    return SDL_APP_FAILURE;
+  }
+
+  // Time
+  g_next_frame_time = get_current_time_ms();
+
+  return SDL_APP_CONTINUE;
+}
+
+SDL_AppResult SDL_AppEvent(UNUSED_PARAM void *appstate, SDL_Event *event) {
+  if (event->type == SDL_EVENT_QUIT) {
+    return SDL_APP_SUCCESS;
+  }
+
+  return SDL_APP_CONTINUE;
+}
+
+SDL_AppResult SDL_AppIterate(UNUSED_PARAM void *appstate) {
+  // Simulation
+  for (uint32_t t_cycle = 0; t_cycle < GB_CYCLES_PER_FRAME; ++t_cycle) {
+    handle_input(&g_emulator);
+    if (GB_FAILED(GB_emulator_tick(&g_emulator))) {
+      log_error(GB_emulator_get_last_error(&g_emulator));
+      return SDL_APP_FAILURE;
     }
   }
 
-  return true;
-}
+  // Host render
+  render_frame();
 
-void main_loop() {
-  bool running = true;
-  SDL_Event event;
-  double next_frame_time = get_current_time_ms();
-  while (running) {
-    // Host event
-    while (SDL_PollEvent(&event)) {
-      if (event.type == SDL_EVENT_QUIT) {
-        running = false;
-        break;
-      }
-    }
-
-    // Simulation
-    for (uint32_t t_cycle = 0; t_cycle < GB_CYCLES_PER_FRAME; ++t_cycle) {
-      handle_input(&g_emulator);
-      if (GB_FAILED(GB_emulator_tick(&g_emulator))) {
-        running = false;
-        break;
-      }
-    }
-
-    // Host render
-    render_frame();
-
-    // VSync
-    const double current_time = get_current_time_ms();
-    if (next_frame_time > current_time) {
-      precise_sleep(next_frame_time - current_time);
-    } else {
-      // Huge delay - re-sync
-      next_frame_time = current_time;
-    }
-    next_frame_time += TARGET_FRAME_TIME;
+  // VSync
+  const double current_time = get_current_time_ms();
+  if (g_next_frame_time > current_time) {
+    precise_sleep(g_next_frame_time - current_time);
+  } else {
+    // Huge delay - re-sync
+    g_next_frame_time = current_time;
   }
+  g_next_frame_time += TARGET_FRAME_TIME;
+
+  return SDL_APP_CONTINUE;
 }
 
-void destroy() {
+void SDL_AppQuit(UNUSED_PARAM void *appstate, UNUSED_PARAM SDL_AppResult result) {
   GB_emulator_free(&g_emulator);
 
   if (g_frame) {
     SDL_DestroyTexture(g_frame);
     g_frame = NULL;
   }
-
-  if (g_renderer) {
-    SDL_DestroyRenderer(g_renderer);
-    g_renderer = NULL;
-  }
-
-  if (g_window) {
-    SDL_DestroyWindow(g_window);
-    g_window = NULL;
-  }
-
-  SDL_Quit();
-}
-
-int main(int argc, char *argv[]) {
-  if (init(argc, argv)) {
-    main_loop();
-  }
-  destroy();
-
-  return 0;
 }
 
